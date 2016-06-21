@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include hardware_store *.css
+recursive-include hardware_store *.csv
+recursive-include hardware_store *.html
+recursive-include hardware_store *.ico
+recursive-include hardware_store *.js
+recursive-include hardware_store *.json
+recursive-include hardware_store *.md
+recursive-include hardware_store *.png
+recursive-include hardware_store *.py
+recursive-include hardware_store *.svg
+recursive-include hardware_store *.txt
+recursive-exclude hardware_store *.pyc
