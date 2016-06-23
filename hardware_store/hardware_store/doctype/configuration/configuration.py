@@ -23,7 +23,7 @@ class Configuration(Document):
 def quotation_status():
 	configuration_obj = frappe.get_doc("Configuration", "Configuration")
 	if configuration_obj:
-		Quotations = frappe.db.sql("""select  `name`, `transaction_date` 
+		Quotations = frappe.db.sql("""SELECT  `name`, `transaction_date` 
 									from 
 										`tabQuotation` 
 									where 
