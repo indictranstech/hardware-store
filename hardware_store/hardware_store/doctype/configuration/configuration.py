@@ -22,27 +22,27 @@ class Configuration(Document):
 @frappe.whitelist(allow_guest=True)
 def quotation_status():
 	configuration_obj = frappe.get_doc("Configuration", "Configuration")
-	Quotations = frappe.db.sql("""select  `name`, `transaction_date` 
-								from 
-									`tabQuotation` 
+	if configuration_obj:
+		Quotations = frappe.db.sql("""select  `name`, `transaction_date` 
+									from 
+										`tabQuotation` 
+									where 
+										quotation_status = 'Valid' 
+										and status = 'Submitted'
+									""", as_dict=1)
+		
+		for fields in Quotations:
+			end_date = fields.transaction_date + datetime.timedelta(days=configuration_obj.valid_days)
+			if getdate(nowdate()) > end_date:
+				frappe.db.sql("""UPDATE `tabQuotation` 
+								SET 
+									quotation_status ='Expired', 
+									order_lost_reason ='Expired due to transaction date exceeds given limit specified in configuration',
+									status ='Lost' 
 								where 
-									quotation_status = 'Valid' 
-									and status = 'Submitted'
-								""", as_dict=1)
-	
-	for fields in Quotations:
-		end_date = fields.transaction_date + datetime.timedelta(days=configuration_obj.valid_days)
-		if getdate(nowdate()) > end_date:
-			print fields.name , getdate(nowdate()), end_date
-			frappe.db.sql("""UPDATE `tabQuotation` 
-							SET 
-								quotation_status ='Expired', 
-								order_lost_reason ='Expired due transaction date exceeds given limit specified in configuration',
-								status ='Lost' 
-							where 
-								name ='%s' 
-							""" %(fields.name))
-			frappe.db.commit()
+									name ='%s' 
+								""" %(fields.name))
+				frappe.db.commit()
 			
 			
  

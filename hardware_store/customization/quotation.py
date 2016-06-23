@@ -30,15 +30,16 @@ def rate(args):
 	for min_qty in quantity:
 		item_quanties.append(min_qty.minimum_qty)
 	sorted_quanties = sorted(item_quanties)
-
+	
 	required_qty =0
 	for qty in sorted_quanties:
-		if item_qty <= qty:
+		if int(item_qty) <= qty:
 			required_qty = qty
 			break
 		else:
 			required_qty = max(sorted_quanties)
-			
+			break
+
 	rate = frappe.db.sql("""SELECT chld_tbl.rate as rate 
 					from 
 						`tabItem` as item, `%s` as chld_tbl 
@@ -49,4 +50,5 @@ def rate(args):
 						and 
 							chld_tbl.minimum_qty = %s
 						""" %(Price_list, item_name, required_qty),as_dict=1)
+	
 	return rate

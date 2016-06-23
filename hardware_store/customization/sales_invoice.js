@@ -1,4 +1,4 @@
-frappe.ui.form.on("Quotation Item","qty",function(doc, cdt, cdn){
+frappe.ui.form.on("Sales Invoice Item","qty",function(doc, cdt, cdn){
 	cur_doc = cur_frm.doc
 	customer_group = cur_doc.customer_group
 	var item = locals[cdt][cdn];
@@ -11,6 +11,7 @@ frappe.ui.form.on("Quotation Item","qty",function(doc, cdt, cdn){
 	else {
 		get_rate_from_item(item, customer_group)
 	}
+
 })
 
 function get_rate_from_item (item, customer_group) {
@@ -21,11 +22,11 @@ function get_rate_from_item (item, customer_group) {
 	return frappe.call({
 				method : "hardware_store.customization.quotation.rate",
 				args : { args },
-			callback:function(r) {
+			callback:function(r){
 				if(r.message) {
 					item.rate =r.message[0]['rate']
-					}																																																																																																																																																																																																																																																																																																																																																																																																																																															}
-				})
+				}																																																																																																																																																																																																																																																																																																																																																																																																																																																																																		}
+			})
 }
 
  
