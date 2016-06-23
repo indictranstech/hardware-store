@@ -81,15 +81,19 @@ app_license = "MIT"
 # Scheduled Tasks
 # ---------------
 
+scheduler_events = {
+	"daily": [
+		"hardware_store.hardware_store.doctype.configuration.configuration.quotation_status"
+	]
+}
+
+
 # scheduler_events = {
 # 	"all": [
 # 		"hardware_store.tasks.all"
 # 	],
 # 	"daily": [
 # 		"hardware_store.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"hardware_store.tasks.hourly"
 # 	],
 # 	"weekly": [
 # 		"hardware_store.tasks.weekly"
@@ -111,3 +115,4 @@ app_license = "MIT"
 # 	"frappe.desk.doctype.event.event.get_events": "hardware_store.event.get_events"
 # }
 
+fixtures= ['Custom Script','Property Setter','Custom Field']
