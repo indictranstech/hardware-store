@@ -111,3 +111,4 @@ app_license = "MIT"
 # 	"frappe.desk.doctype.event.event.get_events": "hardware_store.event.get_events"
 # }
 
+fixtures= ['Custom Script','Property Setter','Custom Field']
