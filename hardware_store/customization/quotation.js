@@ -27,8 +27,8 @@ function get_rate_from_item (item, customer_group) {
 				args : { args },
 			callback:function(r){
 				if(r.message){
-					item.rate =10
-					}
+					item.rate =r.message[0]['rate']
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																					}
 		}
 	})
 

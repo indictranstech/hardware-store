@@ -17,15 +17,36 @@ def rate(args):
 		Price_list = "tabReseller Customers"
 	else:
 		Price_list = "tabRegular Customers"
-	rate = frappe.db.sql("""SELECT chld_tbl.rate as rate, chld_tbl.minimum_qty as minimum_qty 
+	item_quanties = []
+	quantity = frappe.db.sql("""SELECT chld_tbl.rate as rate, chld_tbl.minimum_qty as minimum_qty 
 					from 
 						`tabItem` as item, `%s` as chld_tbl 
 					where 
 							item.name = chld_tbl.parent
 						and 
 							item.name = '%s'
-						and
-							chld_tbl.minimum_qty >= %s
-						""" %(Price_list, item_name, item_qty),as_dict=1)
+						""" %(Price_list, item_name),as_dict=1)
 
-	return "hello"
+	for min_qty in quantity:
+		item_quanties.append(min_qty.minimum_qty)
+	sorted_quanties = sorted(item_quanties)
+
+	required_qty =0
+	for qty in sorted_quanties:
+		if item_qty <= qty:
+			required_qty = qty
+			break
+		else:
+			required_qty = max(sorted_quanties)
+			
+	rate = frappe.db.sql("""SELECT chld_tbl.rate as rate 
+					from 
+						`tabItem` as item, `%s` as chld_tbl 
+					where 
+							item.name = chld_tbl.parent
+						and 
+							item.name = '%s'
+						and 
+							chld_tbl.minimum_qty = %s
+						""" %(Price_list, item_name, required_qty),as_dict=1)
+	return rate
