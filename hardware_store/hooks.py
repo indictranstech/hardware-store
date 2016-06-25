@@ -13,6 +13,7 @@ app_license = "MIT"
 
 # Includes in <head>
 # ------------------
+app_include_js = "assets/js/hardware_store.min.js"
 
 # include js, css files in header of desk.html
 # app_include_css = "/assets/hardware_store/css/hardware_store.css"
