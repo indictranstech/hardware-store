@@ -20,6 +20,8 @@ erpnext.pos.PointOfSale = Class.extend({
 		this.wrapper.find('input.discount-percentage').on("change", function() {
 			frappe.model.set_value(me.frm.doctype, me.frm.docname,
 				"additional_discount_percentage", flt(this.value));
+			me.calculate_change_return();
+			// alert("hello");
 		});
 
 		this.wrapper.find('input.discount-amount').on("change", function() {
@@ -50,6 +52,8 @@ erpnext.pos.PointOfSale = Class.extend({
 		this.make_search();
 		this.make_item_list();
 		this.make_si_from_quotation();
+		this.make_amount_given_by_customer();
+		// this.make_change_return();
 	},
 	make_party: function() {
 		var me = this;
@@ -95,24 +99,116 @@ erpnext.pos.PointOfSale = Class.extend({
 		});
 	},
 	// create si from quotation----------------------------------------------------------------
-	make_si_from_quotation: function() {
-	if (this.frm.doctype == "Sales Invoice" && this.frm.doc.docstatus===0) {
-		parent = this.wrapper.find(".quotation-area")
-		quotation_btn = cur_frm.add_custom_button(__("Create from Quotation"),function(){
-			frappe.model.map_current_doc({
-					method: "hardware_store.customization.customization.make_sales_invoice",
-					source_doctype: "Quotation",
-					get_query_filters: {
-						docstatus: 1,
-						status: ["!=", "Lost"],
-						order_type: cur_frm.doc.order_type,
-						customer: cur_frm.doc.customer || undefined,
-						company: cur_frm.doc.company
-					}
-				})
-
+	make_amount_given_by_customer:function () {
+		var me = this;
+		this.amount_given_by_customer = frappe.ui.form.make_control({
+			df: {
+				"fieldtype": "Int",
+				"label": "Amt Paid by Customer",
+				"fieldname": "amt_paid_by_customer"
+			},
+			parent: this.wrapper.find(".amount-paid-by-customer"),
+			only_input: true,
 		});
-		$(parent).append($(quotation_btn))
+		this.amount_given_by_customer.make_input();
+			this.amount_given_by_customer.$input.on("focusout keyup", function(e) {
+				var key=e.keyCode || e.which;
+				if(key == 13) {
+					me.calculate_change_return()
+				}else{
+					me.calculate_change_return()
+				}
+		});
+
+		// this.amount_given_by_customer.$input.on("focusout", function() {
+		// 	me.calculate_change_return()
+		// 	// paid_amount = $(this).val()
+
+		// 	// grand_total = me.frm.doc.grand_total
+		// 	// paid_amount = $(this).val()	
+			
+		// 	// change_amount = paid_amount - grand_total
+		// 	// me.wrapper.find(".change-returned").text(format_currency(change_amount, me.frm.doc.currency))
+			
+		// 	// alert( typeof(paid_amount) +"  " + paid_amount)
+		// 	// alert( typeof(	grand_total) +"    " + grand_total)
+		// 	// alert(hell0)
+			
+		// 	// hell = me.wrapper.find(".change-returned"); //.find("input[fieldname='change_return']").val();
+		// 	// console.log(JSON.stringify(hell))
+		// 	// me.wrapper.find("input[fieldname='change_return']").text(hell0);
+		// 	// $("body").find("input[data-fieldname = change_return]").val("140")
+			
+		// 	// me.wrapper.find("input[data-fieldname='change_return']").val(hell0)
+		// 	// grand_total =me.wrapper.find(".grand-total").text()
+		// 	// paid_amount = format_currency($(this).val(), me.frm.currency)
+		// 	// hell = paid_amount - grand_total
+		// 	// // hell = me.wrapper.find(".change-returned"); //.find("input[fieldname='change_return']").val();
+		// 	// alert(grand_total,":/",paid_amount)
+		// 	// alert(JSON.stringify(hell))
+		// 	// console.log(JSON.stringify(hell))
+
+		// 	// me.wrapper.find(".grand-total").text(format_currency(me.frm.doc.grand_total, me.frm.doc.currency));
+		
+		// 	//data-fieldname="change_return"
+		// });
+	},
+	calculate_change_return: function() {
+		var me = this;
+		paid_amount = this.wrapper.find("input[data-fieldname='amt_paid_by_customer']").val()
+		grand_total = this.frm.doc.grand_total;
+		var change_amount; 
+		if(paid_amount && grand_total) {
+			change_amount = paid_amount - grand_total
+			
+		}else{
+			change_amount = 0
+		}
+		me.wrapper.find(".change-returned").text(format_currency(change_amount, me.frm.doc.currency))
+	},
+
+	make_change_return: function(){
+		var me  = this;
+		this.changes_return = frappe.ui.form.make_control({
+			df: {
+				"fieldtype": "Int",
+				"label": "Change return",
+				"fieldname": "change_return"
+			},
+			parent: this.wrapper.find(".change-returned"),
+			only_input: true,
+		});
+		this.changes_return.make_input();
+	},
+
+	make_si_from_quotation: function() {
+		if (this.frm.doctype == "Sales Invoice" && this.frm.doc.docstatus===0) {
+			parent = this.wrapper.find(".quotation-area")
+			quotation_btn = cur_frm.add_custom_button(__("Create from Quotation"),function() {
+				frappe.model.map_current_doc({
+						method: "hardware_store.customization.customization.make_sales_invoice",
+						source_doctype: "Quotation",
+						get_query_filters: {
+							docstatus: 1,
+							status: ["!=", "Lost"],
+							order_type: cur_frm.doc.order_type,
+							customer: cur_frm.doc.customer || undefined,
+							company: cur_frm.doc.company
+						}
+					})
+
+			});
+			$(parent).append($(quotation_btn))
+		}
+		if (this.frm.doctype == "Quotation" && this.frm.doc.docstatus===1) {
+			parent = this.wrapper.find(".quotation-area")
+			sales_invoice_btn = cur_frm.add_custom_button(__("Create Sales Invoice"),function(){
+				frappe.model.open_mapped_doc({
+					method: "hardware_store.customization.quotation.make_sales_invoice",
+					frm: cur_frm
+				})
+			});
+			$(parent).append($(sales_invoice_btn))
 		}	
 	},
 	make_refresh: function() {
@@ -373,8 +469,9 @@ erpnext.pos.PointOfSale = Class.extend({
 			.toggle(this.frm.doc.docstatus===0);
 
 		$(this.wrapper).find('input, button').prop("disabled", !(this.frm.doc.docstatus===0));
+		$(this.wrapper).find(".quotation-area").find('input, button').prop("disabled", false, !(this.frm.doc.docstatus===0));
 
-		this.wrapper.find(".pos-item-area").toggleClass("hide", me.frm.doc.docstatus!==0);
+		// this.wrapper.find(".pos-item-area").toggleClass("hide", me.frm.doc.docstatus!==0);
 
 	},
 	set_primary_action: function() {

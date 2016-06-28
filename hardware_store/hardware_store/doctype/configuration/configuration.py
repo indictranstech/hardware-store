@@ -15,7 +15,7 @@ class Configuration(Document):
 		self.vaildate_days()
 
 	def vaildate_days(self):
-		if self.valid_days == 0:
+		if self.valid_days <= 0:
 			frappe.throw(_("Please Enter proper valid days , valid days should be greater than Zero"))
 
 
@@ -45,4 +45,7 @@ def quotation_status():
 				frappe.db.commit()
 			
 			
- 
+
+@frappe.whitelist()
+def discount_limit():
+	return frappe.db.get_value("Configuration", "Configuration", "discount_limit")

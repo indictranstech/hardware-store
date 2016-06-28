@@ -20,14 +20,28 @@ function get_rate_from_item (item, customer_group) {
 	args['qty'] = item.qty
 	args['customer_group'] = customer_group
 	return frappe.call({
-				method : "hardware_store.customization.quotation.rate",
-				args : { args },
-			callback:function(r){
-				if(r.message) {
-					item.rate =r.message[0]['rate']
-				}
+		method : "hardware_store.customization.quotation.rate",
+		args : { args },
+		callback:function(r){
+			if(r.message) {
+				item.rate =r.message[0]['rate']
 			}
-		})
+		}
+	})
 }
 
- 
+
+ frappe.ui.form.on("Sales Invoice","additional_discount_percentage",function(doc, dt, dn){
+ 	sales_invoice = frappe.get_doc(dt, dn)
+	return frappe.call({
+ 		method : "hardware_store.hardware_store.doctype.configuration.configuration.discount_limit",
+ 		callback:function(r) {
+ 			if(r.message){
+ 				if(r.message < sales_invoice.additional_discount_percentage){
+ 					msgprint("Discount % exceeds given limit specified in configuration ")
+ 					cur_frm.set_value("additional_discount_percentage", r.message)	
+ 				}
+ 			}
+ 		}
+ 	})
+ })
