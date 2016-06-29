@@ -53,6 +53,7 @@ erpnext.pos.PointOfSale = Class.extend({
 		this.make_item_list();
 		this.make_si_from_quotation();
 		this.make_amount_given_by_customer();
+		this.make_currency_convertor();
 		// this.make_change_return();
 	},
 	make_party: function() {
@@ -182,7 +183,7 @@ erpnext.pos.PointOfSale = Class.extend({
 	},
 
 	make_si_from_quotation: function() {
-		if (this.frm.doctype == "Sales Invoice" && this.frm.doc.docstatus===0) {
+		if (this.frm.doctype == "Sales Invoice") {
 			parent = this.wrapper.find(".quotation-area")
 			quotation_btn = cur_frm.add_custom_button(__("Create from Quotation"),function() {
 				frappe.model.map_current_doc({
@@ -210,6 +211,85 @@ erpnext.pos.PointOfSale = Class.extend({
 			});
 			$(parent).append($(sales_invoice_btn))
 		}	
+	},
+	make_currency_convertor: function() {
+		var me = this;
+		parent = this.wrapper.find(".currency-convertor")
+		convertor = cur_frm.add_custom_button(__("Convert Money"), function() {
+			me.dialog_currency_convertor()
+		});
+		$(parent).append($(convertor))
+	},
+
+	dialog_currency_convertor: function  () {
+		var me = this;
+		var dialog = new frappe.ui.Dialog({
+					width: 400,
+					title: 'Convert Currency',
+					fields: [
+						{fieldtype:'Link',
+							fieldname:'default_currency', label: __('Default Currency'),
+							options:'Currency', "default": erpnext.get_currency()},
+						{fieldtype:'Link',
+							fieldname:'convert_to_currency', label: __('Convert to Currency'),
+							options:'Currency'},
+						{fieldtype:"Float",
+							fieldname: 'exchange_rate', label: __('Exchange Rate')},
+						{fieldtype:"Float",
+							fieldname: 'convert_to', label: __('From Currency')},
+						{fieldtype:"Float",
+							fieldname: 'converted_currency', label: __('To Currency')},
+					]
+				});
+
+				//make read only
+				dialog.get_input('default_currency').prop("disabled", true);
+				dialog.get_input('converted_currency').prop("disabled", true)
+
+			
+				me.dialog = dialog;
+				dialog.show();
+				
+				dialog.fields_dict.convert_to_currency.$input.on("change", function(){
+					var values = dialog.get_values();
+					var df_obj = dialog.fields_dict
+					if (values.default_currency && values.convert_to_currency) {
+						me.get_exchange_rate(values.default_currency, values.convert_to_currency,
+									function(exchange_rate) {
+										dialog.set_value("exchange_rate", exchange_rate);
+										});	
+						dialog.fields_dict.exchange_rate.df.description = "1 " + values.default_currency
+									+ " = [?] " + values.convert_to_currency
+						dialog.fields_dict.exchange_rate.refresh();
+
+						df_obj.convert_to.df.label = df_obj.convert_to.df.label.split(" ")[0] + " "
+						+ values.default_currency + " " + df_obj.convert_to.df.label.split(" ")[1]
+						df_obj.convert_to.refresh();
+
+						df_obj.converted_currency.df.label = df_obj.converted_currency.df.label.split(" ")[0] + " " 
+						+ values.convert_to_currency + " " + df_obj.converted_currency.df.label.split(" ")[1]
+						df_obj.converted_currency.refresh();
+					
+					}
+				})
+				dialog.get_input('convert_to').on("keyup", function(){
+					var values = dialog.get_values();
+					dialog.set_value("converted_currency", flt(values.exchange_rate * values.convert_to ))
+				})
+				 
+		// body...
+	},
+	get_exchange_rate: function(from_currency, to_currency, callback) {
+		return frappe.call({
+			method: "erpnext.setup.utils.get_exchange_rate",
+			args: {
+				from_currency: from_currency,
+				to_currency: to_currency
+			},
+			callback: function(r) {
+				callback(flt(r.message));
+			}
+		});
 	},
 	make_refresh: function() {
 		var me = this;
@@ -376,7 +456,13 @@ erpnext.pos.PointOfSale = Class.extend({
 		this.show_items_in_item_cart();
 		this.show_taxes();
 		this.set_totals();
+		this.hide_quotation_area();
+
 	},
+	hide_quotation_area: function(){
+		this.wrapper.find(".quotation-area").toggleClass("hide", this.frm.doc.docstatus!==0);
+	},
+
 	refresh_item_list: function() {
 		var me = this;
 		// refresh item list on change of price list
@@ -616,7 +702,7 @@ erpnext.pos.PointOfSale = Class.extend({
 					}
 				}).trigger("change");
 
-				me.set_pay_button(dialog);
+				me.set_pay_button(dialog);	
 			});
 		}
 	},

@@ -45,3 +45,9 @@ function get_rate_from_item (item, customer_group) {
  		}
  	})
  })
+
+ frappe.ui.form.on("Sales Invoice","onload",function(doc, cdt, cdn){
+ 	if (cint(frappe.defaults.get_user_defaults("fs_pos_view"))===1)
+						erpnext.pos.toggle(cur_frm, true);
+
+ })
