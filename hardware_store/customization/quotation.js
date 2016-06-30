@@ -15,7 +15,7 @@ frappe.ui.form.on("Quotation Item","qty",function(doc, cdt, cdn){
 
 function get_rate_from_item (item, customer_group) {
 	args ={}
-	args['item_name'] = item.item_code
+	args['item_name'] = item.item_code || item.item_name
 	args['qty'] = item.qty
 	args['customer_group'] = customer_group
 	return frappe.call({
@@ -42,4 +42,10 @@ function get_rate_from_item (item, customer_group) {
  			}
  		}
  	})
+ })
+
+ frappe.ui.form.on("Quotation","onload",function(doc, cdt, cdn){
+ 	if (cint(frappe.defaults.get_user_defaults("fs_pos_view"))===1)
+						erpnext.pos.toggle(cur_frm, true);
+
  })

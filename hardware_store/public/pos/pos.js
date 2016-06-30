@@ -99,7 +99,9 @@ erpnext.pos.PointOfSale = Class.extend({
 				me.item_timeout = setTimeout(function() { me.make_item_list(); }, 1000);
 		});
 	},
-	// create si from quotation----------------------------------------------------------------
+
+	// start of custom code
+	// create si from quotation-
 	make_amount_given_by_customer:function () {
 		var me = this;
 		this.amount_given_by_customer = frappe.ui.form.make_control({
@@ -121,38 +123,6 @@ erpnext.pos.PointOfSale = Class.extend({
 				}
 		});
 
-		// this.amount_given_by_customer.$input.on("focusout", function() {
-		// 	me.calculate_change_return()
-		// 	// paid_amount = $(this).val()
-
-		// 	// grand_total = me.frm.doc.grand_total
-		// 	// paid_amount = $(this).val()	
-			
-		// 	// change_amount = paid_amount - grand_total
-		// 	// me.wrapper.find(".change-returned").text(format_currency(change_amount, me.frm.doc.currency))
-			
-		// 	// alert( typeof(paid_amount) +"  " + paid_amount)
-		// 	// alert( typeof(	grand_total) +"    " + grand_total)
-		// 	// alert(hell0)
-			
-		// 	// hell = me.wrapper.find(".change-returned"); //.find("input[fieldname='change_return']").val();
-		// 	// console.log(JSON.stringify(hell))
-		// 	// me.wrapper.find("input[fieldname='change_return']").text(hell0);
-		// 	// $("body").find("input[data-fieldname = change_return]").val("140")
-			
-		// 	// me.wrapper.find("input[data-fieldname='change_return']").val(hell0)
-		// 	// grand_total =me.wrapper.find(".grand-total").text()
-		// 	// paid_amount = format_currency($(this).val(), me.frm.currency)
-		// 	// hell = paid_amount - grand_total
-		// 	// // hell = me.wrapper.find(".change-returned"); //.find("input[fieldname='change_return']").val();
-		// 	// alert(grand_total,":/",paid_amount)
-		// 	// alert(JSON.stringify(hell))
-		// 	// console.log(JSON.stringify(hell))
-
-		// 	// me.wrapper.find(".grand-total").text(format_currency(me.frm.doc.grand_total, me.frm.doc.currency));
-		
-		// 	//data-fieldname="change_return"
-		// });
 	},
 	calculate_change_return: function() {
 		var me = this;
@@ -216,7 +186,11 @@ erpnext.pos.PointOfSale = Class.extend({
 		var me = this;
 		parent = this.wrapper.find(".currency-convertor")
 		convertor = cur_frm.add_custom_button(__("Convert Money"), function() {
-			me.dialog_currency_convertor()
+			if (me.wrapper.find("input[data-fieldname='customer']").val()){
+				me.dialog_currency_convertor()
+			}else {
+				msgprint(__("Please Select Customer first"))
+			}
 		});
 		$(parent).append($(convertor))
 	},
@@ -228,11 +202,11 @@ erpnext.pos.PointOfSale = Class.extend({
 					title: 'Convert Currency',
 					fields: [
 						{fieldtype:'Link',
+							fieldname:'convert_currency', label: __('Convert Currency'),
+							options:'Currency'},
+						{fieldtype:'Link',
 							fieldname:'default_currency', label: __('Default Currency'),
 							options:'Currency', "default": erpnext.get_currency()},
-						{fieldtype:'Link',
-							fieldname:'convert_to_currency', label: __('Convert to Currency'),
-							options:'Currency'},
 						{fieldtype:"Float",
 							fieldname: 'exchange_rate', label: __('Exchange Rate')},
 						{fieldtype:"Float",
@@ -250,35 +224,76 @@ erpnext.pos.PointOfSale = Class.extend({
 				me.dialog = dialog;
 				dialog.show();
 				
-				dialog.fields_dict.convert_to_currency.$input.on("change", function(){
+				dialog.fields_dict.convert_currency.$input.on("change", function(){
 					var values = dialog.get_values();
 					var df_obj = dialog.fields_dict
-					if (values.default_currency && values.convert_to_currency) {
-						me.get_exchange_rate(values.default_currency, values.convert_to_currency,
+					if (values.default_currency && values.convert_currency) {
+						me.get_exchange_rate(values.convert_currency, values.default_currency,
 									function(exchange_rate) {
 										dialog.set_value("exchange_rate", exchange_rate);
 										});	
-						dialog.fields_dict.exchange_rate.df.description = "1 " + values.default_currency
-									+ " = [?] " + values.convert_to_currency
+						dialog.fields_dict.exchange_rate.df.description = "1 " + values.convert_currency
+									+ " = [?] " + values.default_currency
 						dialog.fields_dict.exchange_rate.refresh();
 
-						df_obj.convert_to.df.label = df_obj.convert_to.df.label.split(" ")[0] + " "
-						+ values.default_currency + " " + df_obj.convert_to.df.label.split(" ")[1]
-						df_obj.convert_to.refresh();
+						label_convert_to = dialog.fields_dict['convert_to'].df.label.split(" ")
+						dialog.fields_dict['convert_to'].set_label(label_convert_to[0] +" "
+							+ values.convert_currency +" "+ label_convert_to[1])
 
-						df_obj.converted_currency.df.label = df_obj.converted_currency.df.label.split(" ")[0] + " " 
-						+ values.convert_to_currency + " " + df_obj.converted_currency.df.label.split(" ")[1]
-						df_obj.converted_currency.refresh();
-					
+						label_converted_currency = dialog.fields_dict['converted_currency'].df.label.split(" ")
+						dialog.fields_dict['converted_currency'].set_label(label_converted_currency[0] +" "
+							+ values.default_currency +" "+ label_converted_currency[1])
+						
+						me.frm.set_value("currency",values.convert_currency)
+												
 					}
 				})
+
 				dialog.get_input('convert_to').on("keyup", function(){
 					var values = dialog.get_values();
 					dialog.set_value("converted_currency", flt(values.exchange_rate * values.convert_to ))
 				})
-				 
-		// body...
+
+				dialog.get_input('exchange_rate').on("change", function(){
+					var values = dialog.get_values();
+					me.frm.set_value("update_stock",0)
+					me.frm.set_value("conversion_rate",values.exchange_rate)
+				})
+
+			this.currency_save_button(dialog)
+			
 	},
+
+	currency_save_button: function(dialog) {
+		var me = this;
+		dialog.set_primary_action(__("Save"), function() {
+			if(dialog.get_input('convert_to').val()){
+				me.add_new_item_for_money_convertor(dialog);
+				dialog.hide();	
+			}else{
+				msgprint(__("Please Specify From Currency"))
+			}
+			
+		})
+
+	},
+ 
+
+	add_new_item_for_money_convertor: function(dialog) {
+		var me = this;
+
+		var child = frappe.model.add_child(me.frm.doc, this.frm.doctype + " Item", "items");
+		child.item_name = "Money Convertor"
+		child.description ="converted money"
+		child.qty = 1;
+		child.rate = dialog.get_input('convert_to').val();
+
+
+		frappe.after_ajax(function() {
+			me.frm.script_manager.trigger("qty", child.doctype, child.name);
+		})
+	},
+
 	get_exchange_rate: function(from_currency, to_currency, callback) {
 		return frappe.call({
 			method: "erpnext.setup.utils.get_exchange_rate",
@@ -300,7 +315,8 @@ erpnext.pos.PointOfSale = Class.extend({
 		$(parent).append($(refresh_btn))
 		 
 	},
-// ---------------------------------------------------------------------------
+// end of custom code
+// end
 	make_item_list: function() {
 		var me = this;
 		if(!this.price_list) {
@@ -692,14 +708,29 @@ erpnext.pos.PointOfSale = Class.extend({
 					dialog.get_field("paid_amount").toggle(is_cash);
 					dialog.get_field("change").toggle(is_cash);
 
+					// original code for reference
+
+					// if (is_cash && !dialog.get_value("change")) {
+					// 	// set to nearest 5
+					// 	dialog.set_value("paid_amount", dialog.get_value("total_amount"));
+					// 	dialog.get_input("paid_amount").trigger("change");
+					// } else if (!is_cash) {
+					// 	dialog.set_value("paid_amount", dialog.get_value("total_amount"));
+					// 	dialog.set_value("change", 0);
+					// }
+					
+					// original code for reference
+
 					if (is_cash && !dialog.get_value("change")) {
 						// set to nearest 5
-						dialog.set_value("paid_amount", dialog.get_value("total_amount"));
+						dialog.set_value("paid_amount", me.wrapper.find("input[data-fieldname='amt_paid_by_customer']").val());
 						dialog.get_input("paid_amount").trigger("change");
 					} else if (!is_cash) {
 						dialog.set_value("paid_amount", dialog.get_value("total_amount"));
 						dialog.set_value("change", 0);
 					}
+
+
 				}).trigger("change");
 
 				me.set_pay_button(dialog);	

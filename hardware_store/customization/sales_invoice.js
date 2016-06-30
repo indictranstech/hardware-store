@@ -16,7 +16,7 @@ frappe.ui.form.on("Sales Invoice Item","qty",function(doc, cdt, cdn){
 
 function get_rate_from_item (item, customer_group) {
 	args ={}
-	args['item_name'] = item.item_code
+	args['item_name'] = item.item_code || item.item_name
 	args['qty'] = item.qty
 	args['customer_group'] = customer_group
 	return frappe.call({
