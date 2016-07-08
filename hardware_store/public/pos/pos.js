@@ -49,6 +49,14 @@ erpnext.pos.PointOfSale = Class.extend({
             })
 		});
 
+		if(cur_frm.doc.__islocal){
+			$("body").keydown(function(e){
+				if(e.keyCode == 81 && e.ctrlKey){
+					map_quotation_to_invoice()
+				}
+			});
+		}
+
 		this.wrapper.find('input.discount-amount').on("change", function() {
 			frappe.model.set_value(me.frm.doctype, me.frm.docname, "discount_amount", flt(this.value));
 		});
@@ -278,10 +286,11 @@ erpnext.pos.PointOfSale = Class.extend({
 						dialog.fields_dict['converted_currency'].set_label(label_converted_currency[0] +" "
 							+ values.default_currency +" "+ label_converted_currency[1])
 						
-						me.frm.set_value("currency",values.convert_currency)
+						me.frm.set_value("currency",r.message[0])
 						dialog.set_value("exchange_rate", r.message[2])
-						me.frm.set_value("update_stock",0)
 						me.frm.set_value("conversion_rate",r.message[2])
+						me.frm.set_value("update_stock",0)
+					
 												
 					}
 
@@ -322,14 +331,15 @@ erpnext.pos.PointOfSale = Class.extend({
 
 				dialog.get_input('convert_to').on("keyup", function(){
 					var values = dialog.get_values();
+					me.frm.set_value("conversion_rate",values.exchange_rate)
 					dialog.set_value("converted_currency", flt(values.exchange_rate * values.convert_to ))
 				})
 
-				dialog.get_input('exchange_rate').on("change", function(){
-					var values = dialog.get_values();
-					me.frm.set_value("update_stock",0)
-					me.frm.set_value("conversion_rate",values.exchange_rate)
-				})
+				// dialog.get_input('exchange_rate').on("change", function(){
+				// 	var values = dialog.get_values();
+				// 	me.frm.set_value("update_stock",0)
+				// 	me.frm.set_value("conversion_rate",values.exchange_rate)
+				// })
 
 			this.currency_save_button(dialog)
 			
@@ -895,4 +905,18 @@ erpnext.pos.toggle = function(frm, show) {
 	if(frm.page.current_view_name==="pos") {
 		frm.pos.refresh();
 	}
+}
+
+function map_quotation_to_invoice () {
+	frappe.model.map_current_doc({
+						method: "hardware_store.customization.customization.make_sales_invoice",
+						source_doctype: "Quotation",
+						get_query_filters: {
+							docstatus: 1,
+							status: ["!=", "Lost"],
+							order_type: cur_frm.doc.order_type,
+							customer: cur_frm.doc.customer || undefined,
+							company: cur_frm.doc.company
+						}
+					})
 }

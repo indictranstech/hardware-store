@@ -31,23 +31,43 @@ function get_rate_from_item (item, customer_group) {
 }
 
 
- frappe.ui.form.on("Sales Invoice","additional_discount_percentage",function(doc, dt, dn){
- 	sales_invoice = frappe.get_doc(dt, dn)
-	return frappe.call({
- 		method : "hardware_store.hardware_store.doctype.configuration.configuration.discount_limit",
- 		callback:function(r) {
- 			if(r.message){
- 				if(r.message < sales_invoice.additional_discount_percentage){
- 					msgprint("Discount % exceeds given limit specified in configuration ")
- 					cur_frm.set_value("additional_discount_percentage", r.message)	
- 				}
- 			}
- 		}
- 	})
- })
+ // frappe.ui.form.on("Sales Invoice","additional_discount_percentage",function(doc, dt, dn){
+ // 	sales_invoice = frappe.get_doc(dt, dn)
+	// return frappe.call({
+ // 		method : "hardware_store.hardware_store.doctype.configuration.configuration.discount_limit",
+ // 		callback:function(r) {
+ // 			if(r.message){
+ // 				if(r.message >= sales_invoice.net_total){
+ // 					msgprint("To apply Discount , Net total should be greater the limit specified in configuration ")
+ // 					// cur_frm.set_value("additional_discount_percentage", 0.0)
+ // 				} 
+ // 			}
+ // 		}
+ // 	})
+ // })
+
+
 
  frappe.ui.form.on("Sales Invoice","onload",function(doc, cdt, cdn){
+ 	var me = this;
  	if (cint(frappe.defaults.get_user_defaults("fs_pos_view"))===1)
 						erpnext.pos.toggle(cur_frm, true);
-
  })
+
+// frappe.ui.form.on("Sales Invoice","refresh",function(doc, cdt, cdn){
+// 	if(cur_frm.doc.__islocal){
+// 	 return frappe.call({
+// 			method : "hardware_store.hardware_store.doctype.configuration.configuration.currency_data",
+// 			callback:function(r) {
+// 				if(r.message){
+// 					cur_frm.set_value("currency",r.message[0])
+// 					cur_frm.set_value("conversion_rate",flt(r.message[2]))
+// 					// refresh_field('conversion_rate');
+// 					// refresh_field("currency","conversion_rate");
+// 					}
+// 				}
+// 	 		})
+// 	}
+//  })
+
+
