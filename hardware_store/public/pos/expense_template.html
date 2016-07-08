@@ -1,0 +1,18 @@
+<div>
+	<table class="table table-bordered table-hover item-table">
+		<tr>
+			<th>Expense Reason</th>
+			<th>Expense Amount</th>
+		</tr>
+		{% for(var i=0, l=data.length; i < l; i++) { %}
+		<tr item="{{data[i].expense_reasons}}" style="line-height: 1; font-size: 14px; margin-bottom:0px;">
+			<td style="width: 200px; padding-bottom:3px;padding-left:3px;padding-right:3px; line-height: 1;">
+				{{ data[i].expense_reasons }}
+			</td>
+			<td style="width: 80px; padding-bottom:3px;padding-left:3px;padding-right:3px; line-height: 1;">
+				{{ data[i].expense_amount }}
+			</td>
+		</tr>
+		{% } %}
+	</table>
+</div>
