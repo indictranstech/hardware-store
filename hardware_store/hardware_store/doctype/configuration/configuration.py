@@ -13,11 +13,15 @@ class Configuration(Document):
 
 	def validate(self):
 		self.vaildate_days()
+		# self.discount_value()
 
 	def vaildate_days(self):
 		if self.valid_days <= 0:
 			frappe.throw(_("Please Enter proper valid days , valid days should be greater than Zero"))
 
+	def discount_value(self):
+		if self.discount_value <= 0:
+			frappe.throw(_("Please Enter proper Discount Value , Discount Value should be greater than Zero"))
 
 @frappe.whitelist(allow_guest=True)
 def quotation_status():
@@ -48,8 +52,9 @@ def quotation_status():
 
 @frappe.whitelist()
 def discount_limit():
-	return frappe.db.get_value("Configuration", "Configuration", "discount_limit")
-
+	discount_limit = frappe.db.get_value("Configuration", "Configuration", "discount_limit")
+	discount_value = frappe.db.get_value("Configuration", "Configuration", "discount_value")
+	return discount_limit, discount_value
 
 @frappe.whitelist()
 def currency_data():

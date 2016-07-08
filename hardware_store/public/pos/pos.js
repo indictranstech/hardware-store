@@ -22,32 +22,32 @@ erpnext.pos.PointOfSale = Class.extend({
 			this.wrapper.find('.discount-field-col').hide()
 		}
 		this.wrapper.find('input.discount-percentage').on("change", function() {
-			// frappe.model.set_value(me.frm.doctype, me.frm.docname,
-			// 	"additional_discount_percentage", flt(this.value));
+			frappe.model.set_value(me.frm.doctype, me.frm.docname,
+				"additional_discount_percentage", flt(this.value));
 			// me.calculate_change_return();
 			// alert("hello");
-			value = flt(this.value)
-            return frappe.call({
-                method: "hardware_store.hardware_store.doctype.configuration.configuration.discount_limit",
-                callback: function(r) {
-                    if (r.message) {
-                        if (r.message >= me.frm.doc.net_total) {
-                        	frappe.model.set_value(me.frm.doctype, me.frm.docname, "additional_discount_percentage", 0.0);
-                            msgprint("To apply Discount , Net total should be greater the limit specified in configuration ")
+			// value = flt(this.value)
+   //          return frappe.call({
+   //              method: "hardware_store.hardware_store.doctype.configuration.configuration.discount_limit",
+   //              callback: function(r) {
+   //                  if (r.message) {
+   //                      if (r.message >= me.frm.doc.net_total) {
+   //                      	frappe.model.set_value(me.frm.doctype, me.frm.docname, "additional_discount_percentage", 0.0);
+   //                          msgprint("To apply Discount , Net total should be greater the limit specified in configuration ")
 
-                        } 
-                        else {
-                        	if (value <= 10){
-                        		frappe.model.set_value(me.frm.doctype, me.frm.docname, "additional_discount_percentage", value);
-                        	}else{
-                        		frappe.model.set_value(me.frm.doctype, me.frm.docname, "additional_discount_percentage", 0.0);
-                        		msgprint("Discount should not be greater than 10 ")
-                        	}
+   //                      } 
+   //                      else {
+   //                      	if (value <= 10){
+   //                      		frappe.model.set_value(me.frm.doctype, me.frm.docname, "additional_discount_percentage", value);
+   //                      	}else{
+   //                      		frappe.model.set_value(me.frm.doctype, me.frm.docname, "additional_discount_percentage", 0.0);
+   //                      		msgprint("Discount should not be greater than 10 ")
+   //                      	}
                             
-                        }
-                    }
-                }
-            })
+   //                      }
+   //                  }
+   //              }
+   //          })
 		});
 
 		if(cur_frm.doc.__islocal){
@@ -59,7 +59,28 @@ erpnext.pos.PointOfSale = Class.extend({
 		}
 
 		this.wrapper.find('input.discount-amount').on("change", function() {
-			frappe.model.set_value(me.frm.doctype, me.frm.docname, "discount_amount", flt(this.value));
+			// frappe.model.set_value(me.frm.doctype, me.frm.docname, "discount_amount", flt(this.value));
+			value = flt(this.value)
+			frappe.call({
+				method: "hardware_store.hardware_store.doctype.configuration.configuration.discount_limit",
+			    callback: function(r) {
+			        if (r.message) {
+			            if (r.message[0] >= me.frm.doc.net_total) {
+			            	frappe.model.set_value(me.frm.doctype, me.frm.docname, "discount_amount", 0.0);
+			                msgprint("To apply Discount , Net total should be greater the limit specified in configuration ")
+			            } 
+			            else {
+			            	if (value <= r.message[1]){
+			            		frappe.model.set_value(me.frm.doctype, me.frm.docname, "discount_amount", value);
+			            	}else{
+			            		frappe.model.set_value(me.frm.doctype, me.frm.docname, "discount_amount", 0.0);
+			            		// msgprint("Discount should not be greater than Discount Value %s "%(r.message[1]))
+			            		msgprint(__("Discount should not be greater than Discount Value") +" "+ r.message[1])
+			            	}
+			            }
+			        }
+			    }
+			})	
 		});
 	},
 	check_transaction_type: function() {
@@ -706,8 +727,12 @@ erpnext.pos.PointOfSale = Class.extend({
 	},
 	set_totals: function() {
 		var me = this;
+		console.log(me.frm.doc.base_amount,"------")
+		data = format_currency(me.frm.doc["base_total"], get_currency_symbol())
 		this.wrapper.find(".net-total").text(format_currency(me.frm.doc["net_total"], me.frm.doc.currency));
+		this.wrapper.find(".net-total1").text(format_currency(me.frm.doc["base_net_total"], get_currency_symbol()));
 		this.wrapper.find(".grand-total").text(format_currency(me.frm.doc.grand_total, me.frm.doc.currency));
+		this.wrapper.find(".grand-total1").text(format_currency(me.frm.doc['base_net_total'], get_currency_symbol()));
 	},
 	call_when_local: function() {
 		var me = this;
