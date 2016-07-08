@@ -49,3 +49,11 @@ def quotation_status():
 @frappe.whitelist()
 def discount_limit():
 	return frappe.db.get_value("Configuration", "Configuration", "discount_limit")
+
+
+@frappe.whitelist()
+def currency_data():
+	from_currency =frappe.db.get_value("Configuration", "Configuration", "from_currency")
+	to_currency =frappe.db.get_value("Configuration", "Configuration", "to_currency")
+	exchange_rate =frappe.db.get_value("Configuration", "Configuration", "exchange_rate")
+	return [from_currency ,to_currency, exchange_rate]

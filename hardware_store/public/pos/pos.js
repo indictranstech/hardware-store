@@ -17,11 +17,36 @@ erpnext.pos.PointOfSale = Class.extend({
 			me.refresh();
 		});
 
+		if(!(frappe.get_cookie("user_id") == "Administrator") && inList(user_roles,"Cashier")){
+			this.wrapper.find('.discount-field-col').hide()
+		}
 		this.wrapper.find('input.discount-percentage').on("change", function() {
-			frappe.model.set_value(me.frm.doctype, me.frm.docname,
-				"additional_discount_percentage", flt(this.value));
-			me.calculate_change_return();
+			// frappe.model.set_value(me.frm.doctype, me.frm.docname,
+			// 	"additional_discount_percentage", flt(this.value));
+			// me.calculate_change_return();
 			// alert("hello");
+			value = flt(this.value)
+            return frappe.call({
+                method: "hardware_store.hardware_store.doctype.configuration.configuration.discount_limit",
+                callback: function(r) {
+                    if (r.message) {
+                        if (r.message >= me.frm.doc.net_total) {
+                        	frappe.model.set_value(me.frm.doctype, me.frm.docname, "additional_discount_percentage", 0.0);
+                            msgprint("To apply Discount , Net total should be greater the limit specified in configuration ")
+
+                        } 
+                        else {
+                        	if (value <= 10){
+                        		frappe.model.set_value(me.frm.doctype, me.frm.docname, "additional_discount_percentage", value);
+                        	}else{
+                        		frappe.model.set_value(me.frm.doctype, me.frm.docname, "additional_discount_percentage", 0.0);
+                        		msgprint("Discount should not be greater than 10 ")
+                        	}
+                            
+                        }
+                    }
+                }
+            })
 		});
 
 		this.wrapper.find('input.discount-amount').on("change", function() {
@@ -223,15 +248,24 @@ erpnext.pos.PointOfSale = Class.extend({
 			
 				me.dialog = dialog;
 				dialog.show();
-				
-				dialog.fields_dict.convert_currency.$input.on("change", function(){
+				frappe.call({
+						method : "hardware_store.hardware_store.doctype.configuration.configuration.currency_data",
+						callback:function(r) {
+							if(r.message){
+								// alert(r.message)
+								dialog.set_value("convert_currency", r.message[0])
+								dialog.set_value("default_currency", r.message[1])
+								
+
+
+
 					var values = dialog.get_values();
 					var df_obj = dialog.fields_dict
 					if (values.default_currency && values.convert_currency) {
-						me.get_exchange_rate(values.convert_currency, values.default_currency,
-									function(exchange_rate) {
-										dialog.set_value("exchange_rate", exchange_rate);
-										});	
+						// me.get_exchange_rate(values.convert_currency, values.default_currency,
+						// 			function(exchange_rate) {
+						// 				dialog.set_value("exchange_rate", exchange_rate);
+						// 				});	
 						dialog.fields_dict.exchange_rate.df.description = "1 " + values.convert_currency
 									+ " = [?] " + values.default_currency
 						dialog.fields_dict.exchange_rate.refresh();
@@ -245,9 +279,46 @@ erpnext.pos.PointOfSale = Class.extend({
 							+ values.default_currency +" "+ label_converted_currency[1])
 						
 						me.frm.set_value("currency",values.convert_currency)
+						dialog.set_value("exchange_rate", r.message[2])
+						me.frm.set_value("update_stock",0)
+						me.frm.set_value("conversion_rate",r.message[2])
 												
 					}
-				})
+
+
+
+								// if(r.message >= sales_invoice.net_total){
+								// 	msgprint("To apply Discount , Net total should be greater the limit specified in configuration ")
+								// 	// cur_frm.set_value("additional_discount_percentage", 0.0)
+								// } 
+							}
+						}
+					})
+				
+				// dialog.fields_dict.convert_currency.$input.on("change", function(){
+				// 	var values = dialog.get_values();
+				// 	var df_obj = dialog.fields_dict
+				// 	if (values.default_currency && values.convert_currency) {
+				// 		me.get_exchange_rate(values.convert_currency, values.default_currency,
+				// 					function(exchange_rate) {
+				// 						dialog.set_value("exchange_rate", exchange_rate);
+				// 						});	
+				// 		dialog.fields_dict.exchange_rate.df.description = "1 " + values.convert_currency
+				// 					+ " = [?] " + values.default_currency
+				// 		dialog.fields_dict.exchange_rate.refresh();
+
+				// 		label_convert_to = dialog.fields_dict['convert_to'].df.label.split(" ")
+				// 		dialog.fields_dict['convert_to'].set_label(label_convert_to[0] +" "
+				// 			+ values.convert_currency +" "+ label_convert_to[1])
+
+				// 		label_converted_currency = dialog.fields_dict['converted_currency'].df.label.split(" ")
+				// 		dialog.fields_dict['converted_currency'].set_label(label_converted_currency[0] +" "
+				// 			+ values.default_currency +" "+ label_converted_currency[1])
+						
+				// 		me.frm.set_value("currency",values.convert_currency)
+												
+				// 	}
+				// })
 
 				dialog.get_input('convert_to').on("keyup", function(){
 					var values = dialog.get_values();
@@ -825,4 +896,3 @@ erpnext.pos.toggle = function(frm, show) {
 		frm.pos.refresh();
 	}
 }
-
