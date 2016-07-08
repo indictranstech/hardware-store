@@ -11,6 +11,7 @@ erpnext.pos.PointOfSale = Class.extend({
 
 		this.check_transaction_type();
 		this.make();
+		this.make_expense_entry();
 
 		var me = this;
 		$(this.frm.wrapper).on("refresh-fields", function() {
@@ -396,6 +397,103 @@ erpnext.pos.PointOfSale = Class.extend({
 		$(parent).append($(refresh_btn))
 		 
 	},
+
+	make_expense_entry: function(){
+		var me = this;
+		if (this.frm.doctype == 'Sales Invoice'){	
+			this.frm.page.set_secondary_action(__("Expense Entry"), function() {
+				frappe.call({
+					method: 'hardware_store.customization.rudy_purchase_order.get_expense_resons',
+					args: {},
+					callback: function(r) {
+						// if(r.message){
+						var d = new frappe.ui.Dialog({
+							title: __("Add New Expense Entry"),
+							fields: [
+								{"fieldtype":"HTML", "label":__("Expense Entry"), "reqd":1, "fieldname":"expense_entry"},
+		                        {"fieldtype": "Section Break", "fieldname": "cb3"},
+		                        {fieldtype:"Link", label:__("Expense Reason"), options:'Expense Reason', fieldname:"reason"},
+		                        {"fieldtype": "Column Break", "fieldname": "cb"},
+		                        {"fieldtype": "Float", "label": __("Expense Amount"), "fieldname": "amount"},
+		                        {"fieldtype": "Section Break", "fieldname": "cb1"},
+		                        {"fieldtype": "Button", "label": __("Add"), "fieldname": "make_expense_entry"},
+							]
+						});
+						d.show();
+						if(r.message){
+							$(d.body).find("[data-fieldname='expense_entry']").html(frappe.render_template("expense_template", {"data":r.message}))
+						}
+						
+
+						$(d.body).find("button[data-fieldname='make_expense_entry']").on("click", function(){
+							me.make_expense_entries(d);
+						})
+						// }	
+					}
+				});
+			});
+		}
+	},
+
+	re_render_popup: function(){
+		var me = this;
+		if (this.frm.doctype == 'Sales Invoice'){	
+			frappe.call({
+				method: 'hardware_store.customization.rudy_purchase_order.get_expense_resons',
+				args: {},
+				callback: function(r) {
+					if(r.message){
+						var d = new frappe.ui.Dialog({
+							title: __("Add New Expense Entry"),
+							fields: [
+								{"fieldtype":"HTML", "label":__("Expense Entry"), "reqd":1, "fieldname":"expense_entry"},
+		                        {"fieldtype": "Section Break", "fieldname": "cb3"},
+		                        {fieldtype:"Link", label:__("Expense Reason"), options:'Expense Reason', fieldname:"reason"},
+		                        {"fieldtype": "Column Break", "fieldname": "cb"},
+		                        {"fieldtype": "Float", "label": __("Expense Amount"), "fieldname": "amount"},
+		                        {"fieldtype": "Section Break", "fieldname": "cb1"},
+		                        {"fieldtype": "Button", "label": __("Add"), "fieldname": "make_expense_entry"},
+							]
+						});
+						d.show();
+
+						$(d.body).find("[data-fieldname='expense_entry']").html(frappe.render_template("expense_template", {"data":r.message}))
+					}	
+				}
+			});
+		}
+	},
+
+	make_expense_entries: function(d){
+		var me = this;
+		exp_reason = $(cur_dialog.body).find("input[data-fieldname='reason']").val()
+		exp_amount = $(cur_dialog.body).find("input[data-fieldname='amount']").val()
+		if(exp_reason && exp_amount){
+			frappe.call({
+				method: 'hardware_store.customization.rudy_purchase_order.create_expense_entries',
+				args: {
+					"reason" : exp_reason,
+					"amount" : exp_amount
+				},
+				freeze: true,
+                freeze_message:"Expense Entry Creating...",
+				callback: function(r) {
+					if(r.message){
+						console.log("callback")
+						console.log(r.message)
+						d.hide();
+						// cur_dialog.refresh();
+						me.re_render_popup();
+						// me.make_expense_entry(d, r);
+					}
+				}
+			});
+		}
+		else{
+			frappe.throw("Please enter Expense Reason and Amount before make entry...")
+		}
+	},
+
 // end of custom code
 // end
 	make_item_list: function() {
@@ -527,6 +625,7 @@ erpnext.pos.PointOfSale = Class.extend({
 
 		this.refresh_item_list();
 		this.refresh_fields();
+		this.make_expense_entry();
 
 		// if form is local then only run all these functions
 		if (this.frm.doc.docstatus===0) {
