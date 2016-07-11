@@ -58,7 +58,8 @@ def sort_quantity(item_qty, quantity):
  	item_quanties=[]
  	for min_qty in quantity:
 		item_quanties.append(min_qty.minimum_qty)
-
+		
+	required_qty =0
 	for qty in sorted(item_quanties):
 		if int(item_qty) <= qty:
 			required_qty = qty
