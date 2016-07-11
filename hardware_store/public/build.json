@@ -1,9 +1,14 @@
 {
+	"css/hardware_rudy_store.css": [
+		"public/css/hardware_rudy.css"
+	],
 	"js/hardware_store.min.js": [
 		"public/pos/pos.html",
 		"public/pos/pos_bill_item.html",
 		"public/pos/pos_item.html",
 		"public/pos/pos_tax_row.html",
-		"public/pos/pos.js"
+		"public/pos/pos.js",
+		"public/pos/expense_template.html",
+		"public/pos/currency_exchange_rate_template.html"
 	]
 }
