@@ -11,35 +11,21 @@ def rate(args):
 	item_name = arg['item_name']
 	item_qty = arg['qty']
 		
-	Price_list = ''
+	# Price_list = ''
 	if arg['customer_group'] == "Credit Customers":
 		Price_list = "tabCredit Customers"
+		quantity = quantity_range(Price_list, item_name)
+		required_qty =sort_quantity(item_qty, quantity)
 	elif arg['customer_group'] == "Resellers":
 		Price_list = "tabReseller Customers"
+		quantity = quantity_range(Price_list, item_name)
+		required_qty = sort_quantity(item_qty, quantity)
 	else:
 		Price_list = "tabRegular Customers"
-	item_quanties = []
-	quantity = frappe.db.sql("""SELECT chld_tbl.rate as rate, chld_tbl.minimum_qty as minimum_qty 
-					from 
-						`tabItem` as item, `%s` as chld_tbl 
-					where 
-							item.name = chld_tbl.parent
-						and 
-							item.name = '%s'
-						""" %(Price_list, item_name),as_dict=1)
-
-	for min_qty in quantity:
-		item_quanties.append(min_qty.minimum_qty)
-	sorted_quanties = sorted(item_quanties)
+		quantity = quantity_range(Price_list, item_name)
+		required_qty =sort_quantity(item_qty, quantity)
 	
-	required_qty =0
-	for qty in sorted_quanties:
-		if int(item_qty) <= qty:
-			required_qty = qty
-			break
-		else:
-			required_qty = max(sorted_quanties)
-			break
+
 
 	rate = frappe.db.sql("""SELECT chld_tbl.rate as rate 
 					from 
@@ -54,7 +40,34 @@ def rate(args):
 	return rate
 
 
+def quantity_range(Price_list, item_name):
+	item_quanties = []
+	quantity = frappe.db.sql("""SELECT chld_tbl.rate as rate, chld_tbl.minimum_qty as minimum_qty 
+					from 
+						`tabItem` as item, `%s` as chld_tbl 
+					where 
+							item.name = chld_tbl.parent
+						and 
+							item.name = '%s'
+						and 
+							NOT chld_tbl.minimum_qty = 0
+						""" %(Price_list, item_name),as_dict=1)
+	return quantity
+ 
+def sort_quantity(item_qty, quantity):
+ 	item_quanties=[]
+ 	for min_qty in quantity:
+		item_quanties.append(min_qty.minimum_qty)
 
+	for qty in sorted(item_quanties):
+		if int(item_qty) <= qty:
+			required_qty = qty
+			break
+		elif int(item_qty > qty):
+			required_qty = max(sorted(item_quanties))
+			break
+
+	return required_qty
 
 @frappe.whitelist()
 def make_sales_invoice(source_name, target_doc=None, ignore_permissions=False):

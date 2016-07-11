@@ -52,25 +52,25 @@ function get_rate_from_item (item, customer_group) {
  	var me = this;
  	if (cint(frappe.defaults.get_user_defaults("fs_pos_view"))===1)
 						erpnext.pos.toggle(cur_frm, true);
-	if(frm.doc.__islocal){
-		console.log("onload...........")
-		return frappe.call({
-			method : "hardware_store.hardware_store.doctype.configuration.configuration.currency_data",
-			callback:function(r) {
-				if(r.message){
-					console.log(r.message[0])
-					console.log(frm.doc.currency)
-					frm.doc.currency = r.message[0]
-					refresh_field('currency')
-					console.log(frm.doc.currency)
-					// cur_frm.set_value("currency",r.message[0])
-					// cur_frm.set_value("conversion_rate",flt(r.message[2]))
-					// refresh_field('conversion_rate');
-					// refresh_field("currency","conversion_rate");
-				}
-			}
- 		})
-	}
+	// if(frm.doc.__islocal){
+	// 	console.log("onload...........")
+	// 	return frappe.call({
+	// 		method : "hardware_store.hardware_store.doctype.configuration.configuration.currency_data",
+	// 		callback:function(r) {
+	// 			if(r.message){
+	// 				console.log(r.message[0])
+	// 				console.log(frm.doc.currency)
+	// 				frm.doc.currency = r.message[0]
+	// 				refresh_field('currency')
+	// 				console.log(frm.doc.currency)
+	// 				// cur_frm.set_value("currency",r.message[0])
+	// 				// cur_frm.set_value("conversion_rate",flt(r.message[2]))
+	// 				// refresh_field('conversion_rate');
+	// 				// refresh_field("currency","conversion_rate");
+	// 			}
+	// 		}
+ // 		})
+	// }
  })
 
 // frappe.ui.form.on("Sales Invoice","refresh",function(frm,doc, cdt, cdn){

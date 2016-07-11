@@ -57,6 +57,46 @@ erpnext.pos.PointOfSale = Class.extend({
 				}
 			});
 		}
+		if(cur_frm.doc.__islocal){
+			$("body").keydown(function(e){
+				if(e.keyCode == 69 && e.ctrlKey){
+					$("body").find(".btn.btn-secondary.btn-default").click()
+				}
+			});
+		}
+
+		if(cur_frm.doc.__islocal){
+			$("body").keydown(function(e){
+				if(e.keyCode == 88 && e.ctrlKey){
+					$("body").find(".currency-convertor").find(".btn-default").click()
+				}
+			});
+
+		}
+		if(cur_frm.doc.__islocal){
+			$("body").keydown(function(e){
+				if(e.keyCode == 65 && e.ctrlKey){
+					$("body").find(".btn.btn-primary.btn-sm.primary-action").click()
+				}
+			});
+
+		}
+
+		// if(cur_frm.doc.__islocal){
+		// 	$("body").keydown(function(e){
+		// 		if(e.keyCode == 73 && e.ctrlKey){
+		// 			alert("hello")
+		// 			// $("body").find(".currency-convertor").find(".btn.btn-secondary.btn-default").click()
+		// 		}
+		// 	});
+		// if(cur_frm.doc.__islocal){
+		// 	$("body").keydown(function(e){
+		// 		if(e.keyCode == 88 && e.ctrlKey){
+		// 			$("body").find(".btn.btn-default").click()
+		// 		}
+		// 	});
+
+		
 
 		this.wrapper.find('input.discount-amount').on("change", function() {
 			// frappe.model.set_value(me.frm.doctype, me.frm.docname, "discount_amount", flt(this.value));
@@ -107,7 +147,7 @@ erpnext.pos.PointOfSale = Class.extend({
 		this.make_search();
 		this.make_item_list();
 		this.make_si_from_quotation();
-		this.make_amount_given_by_customer();
+		// this.make_amount_given_by_customer();
 		this.make_currency_convertor();
 		// this.make_change_return();
 	},
@@ -253,115 +293,101 @@ erpnext.pos.PointOfSale = Class.extend({
 	dialog_currency_convertor: function  () {
 		var me = this;
 		var dialog = new frappe.ui.Dialog({
-					width: 400,
-					title: 'Convert Currency',
-					fields: [
-						{fieldtype:'Link',
-							fieldname:'convert_currency', label: __('Convert Currency'),
-							options:'Currency'},
-						{fieldtype:'Link',
-							fieldname:'default_currency', label: __('Default Currency'),
-							options:'Currency', "default": erpnext.get_currency()},
-						{fieldtype:"Float",
-							fieldname: 'exchange_rate', label: __('Exchange Rate')},
-						{fieldtype:"Float",
-							fieldname: 'convert_to', label: __('From Currency')},
-						{fieldtype:"Float",
-							fieldname: 'converted_currency', label: __('To Currency')},
-					]
-				});
+			width: 400,
+			title: 'Convert Currency',
+			fields: [
+				{fieldtype:'HTML',
+					fieldname:'currency_exchange_list', label: __('Currency List')},
+				{fieldtype:'Section Break', label : __('Value to exchange'),
+					fieldname:'sb20'},
+				{fieldtype:'Link',
+					fieldname:'convert_currency', label: __('Convert Currency'),
+					options:'Currency'},
+				{fieldtype:'Link',
+					fieldname:'default_currency', label: __('Default Currency'),
+					options:'Currency', "default": erpnext.get_currency()},
+				{fieldtype:"Float",
+					fieldname: 'exchange_rate', label: __('Exchange Rate')},
+				{fieldtype:"Float",
+					fieldname: 'usd_exchange_currency', label: __('USD Exch Currency')},
+				{fieldtype:"Float",
+					fieldname: 'usd_value', label: __('USD Currency')},
+				{fieldtype:"Float",
+					fieldname: 'convert_to', label: __('From Currency')},
+				{fieldtype:"Float",
+					fieldname: 'converted_currency', label: __('To Currency')},
+				
+			]
+		});
 
-				//make read only
-				dialog.get_input('default_currency').prop("disabled", true);
-				dialog.get_input('converted_currency').prop("disabled", true)
+		//make read only
+		dialog.get_input('convert_currency').prop("disabled", true);
+		dialog.get_input('default_currency').prop("disabled", true);
+		dialog.get_input('convert_currency').parent('').parent('').parent('').parent('').hide()
+		dialog.get_input('default_currency').parent('').parent('').parent('').parent('').hide()
+		dialog.get_input('exchange_rate').parent('').parent('').parent('').parent('').hide()
+		dialog.get_input('usd_exchange_currency').parent('').parent('').parent('').parent('').hide()
+		dialog.get_input('exchange_rate').prop("disabled",true);
+		dialog.get_input('converted_currency').prop("disabled", true)
+
+		// dialog.fields_dict.default_currency.df.hidden = 1
 
 			
-				me.dialog = dialog;
-				dialog.show();
-				frappe.call({
-						method : "hardware_store.hardware_store.doctype.configuration.configuration.currency_data",
-						callback:function(r) {
-							if(r.message){
-								// alert(r.message)
-								dialog.set_value("convert_currency", r.message[0])
-								dialog.set_value("default_currency", r.message[1])
-								
-
-
-
-					var values = dialog.get_values();
-					var df_obj = dialog.fields_dict
-					if (values.default_currency && values.convert_currency) {
-						// me.get_exchange_rate(values.convert_currency, values.default_currency,
-						// 			function(exchange_rate) {
-						// 				dialog.set_value("exchange_rate", exchange_rate);
-						// 				});	
-						dialog.fields_dict.exchange_rate.df.description = "1 " + values.convert_currency
-									+ " = [?] " + values.default_currency
-						dialog.fields_dict.exchange_rate.refresh();
-
-						label_convert_to = dialog.fields_dict['convert_to'].df.label.split(" ")
-						dialog.fields_dict['convert_to'].set_label(label_convert_to[0] +" "
-							+ values.convert_currency +" "+ label_convert_to[1])
-
-						label_converted_currency = dialog.fields_dict['converted_currency'].df.label.split(" ")
-						dialog.fields_dict['converted_currency'].set_label(label_converted_currency[0] +" "
-							+ values.default_currency +" "+ label_converted_currency[1])
-						
-						me.frm.set_value("currency",r.message[0])
-						dialog.set_value("exchange_rate", r.message[2])
-						me.frm.set_value("conversion_rate",r.message[2])
-						me.frm.set_value("update_stock",0)
-					
-												
-					}
-
-
-
-								// if(r.message >= sales_invoice.net_total){
-								// 	msgprint("To apply Discount , Net total should be greater the limit specified in configuration ")
-								// 	// cur_frm.set_value("additional_discount_percentage", 0.0)
-								// } 
+		me.dialog = dialog;
+		dialog.show();
+		frappe.call({
+				method : "hardware_store.hardware_store.doctype.configuration.configuration.currency_data",
+				callback:function(r) {
+					if(r.message){
+						$(dialog.body).find("[data-fieldname='currency_exchange_list']").html(frappe.render_template("currency_exchange_rate_template", {"data":r.message}))
+						for (var i =0 ; i< r.message.length ; i++){
+							if(r.message[i].name =="USD-HTD" ){
+								dialog.set_value("usd_exchange_currency", r.message[i]['exchange_rate'])
 							}
-						}
-					})
+							if(r.message[i].name == "HTD-HTG"){
+								dialog.set_value("convert_currency", r.message[i]['from_currency'])
+								dialog.set_value("default_currency", r.message[i]['to_currency'])
+								
+						var values = dialog.get_values();
+						var df_obj = dialog.fields_dict
+							if (values.default_currency && values.convert_currency) {
+								dialog.fields_dict.exchange_rate.df.description = "1 " + values.convert_currency
+											+ " = [?] " + values.default_currency
+								dialog.fields_dict.exchange_rate.refresh();
+
+								label_convert_to = dialog.fields_dict['convert_to'].df.label.split(" ")
+								// dialog.fields_dict['convert_to'].set_label(label_convert_to[0] +" "
+								// 	+ values.convert_currency +" "+ label_convert_to[1])
+								dialog.fields_dict['convert_to'].set_label(values.convert_currency +" "+ label_convert_to[1])
+
+								label_converted_currency = dialog.fields_dict['converted_currency'].df.label.split(" ")
+								dialog.fields_dict['converted_currency'].set_label(values.default_currency +" "+ label_converted_currency[1])
+								
+								// me.frm.set_value("currency",r.message[0]['from_currency'])
+								dialog.set_value("exchange_rate", r.message[i]['exchange_rate'])
+								// me.frm.set_value("conversion_rate",r.message[2]['exchange_rate'])
+								me.frm.set_value("update_stock",0)
+							}
+								}
+							}
+								
+					}
+				}
+			})
 				
-				// dialog.fields_dict.convert_currency.$input.on("change", function(){
-				// 	var values = dialog.get_values();
-				// 	var df_obj = dialog.fields_dict
-				// 	if (values.default_currency && values.convert_currency) {
-				// 		me.get_exchange_rate(values.convert_currency, values.default_currency,
-				// 					function(exchange_rate) {
-				// 						dialog.set_value("exchange_rate", exchange_rate);
-				// 						});	
-				// 		dialog.fields_dict.exchange_rate.df.description = "1 " + values.convert_currency
-				// 					+ " = [?] " + values.default_currency
-				// 		dialog.fields_dict.exchange_rate.refresh();
+			dialog.get_input('usd_value').on("keyup", function(){
+				var values = dialog.get_values();
+				dialog.set_value("convert_to", flt(values.usd_exchange_currency * values.usd_value ))
+				dialog.set_value("converted_currency", flt(values.exchange_rate * values.usd_value * values.usd_exchange_currency))
+			})	
 
-				// 		label_convert_to = dialog.fields_dict['convert_to'].df.label.split(" ")
-				// 		dialog.fields_dict['convert_to'].set_label(label_convert_to[0] +" "
-				// 			+ values.convert_currency +" "+ label_convert_to[1])
+			dialog.get_input('convert_to').on("keyup", function(){
+				var values = dialog.get_values();
 
-				// 		label_converted_currency = dialog.fields_dict['converted_currency'].df.label.split(" ")
-				// 		dialog.fields_dict['converted_currency'].set_label(label_converted_currency[0] +" "
-				// 			+ values.default_currency +" "+ label_converted_currency[1])
-						
-				// 		me.frm.set_value("currency",values.convert_currency)
-												
-				// 	}
-				// })
-
-				dialog.get_input('convert_to').on("keyup", function(){
-					var values = dialog.get_values();
-					me.frm.set_value("conversion_rate",values.exchange_rate)
-					dialog.set_value("converted_currency", flt(values.exchange_rate * values.convert_to ))
-				})
-
-				// dialog.get_input('exchange_rate').on("change", function(){
-				// 	var values = dialog.get_values();
-				// 	me.frm.set_value("update_stock",0)
-				// 	me.frm.set_value("conversion_rate",values.exchange_rate)
-				// })
+				me.frm.set_value("conversion_rate",values.exchange_rate)
+				dialog.set_value("usd_value", flt(values.convert_to / values.usd_exchange_currency ))
+				dialog.set_value("converted_currency", flt(values.exchange_rate * values.convert_to ))
+			})
 
 			this.currency_save_button(dialog)
 			
@@ -370,13 +396,22 @@ erpnext.pos.PointOfSale = Class.extend({
 	currency_save_button: function(dialog) {
 		var me = this;
 		dialog.set_primary_action(__("Save"), function() {
-			if(dialog.get_input('convert_to').val()){
+			if(dialog.get_input('convert_to').val()) {
+				$.each(me.frm.doc["items"] || [], function(i, d) {
+					if (d.item_name == "Money Convertor") {
+						if (d.qty == 1) {
+							console.log("inside")
+							frappe.model.clear_doc(d.doctype, d.name);
+							me.refresh_grid();
+						}
+					}
+				});
 				me.add_new_item_for_money_convertor(dialog);
 				dialog.hide();	
 			}else{
 				msgprint(__("Please Specify From Currency"))
 			}
-			
+			me.refresh();
 		})
 
 	},
@@ -727,12 +762,12 @@ erpnext.pos.PointOfSale = Class.extend({
 	},
 	set_totals: function() {
 		var me = this;
-		console.log(me.frm.doc.base_amount,"------")
+		// console.log(me.frm.doc.base_amount,"------")
 		data = format_currency(me.frm.doc["base_total"], get_currency_symbol())
 		this.wrapper.find(".net-total").text(format_currency(me.frm.doc["net_total"], me.frm.doc.currency));
-		this.wrapper.find(".net-total1").text(format_currency(me.frm.doc["base_net_total"], get_currency_symbol()));
+		this.wrapper.find(".net-total1").text(format_currency(me.frm.doc["base_net_total"], "G"));
 		this.wrapper.find(".grand-total").text(format_currency(me.frm.doc.grand_total, me.frm.doc.currency));
-		this.wrapper.find(".grand-total1").text(format_currency(me.frm.doc['base_net_total'], get_currency_symbol()));
+		this.wrapper.find(".grand-total1").text(format_currency(me.frm.doc['base_net_total'], "G"));
 	},
 	call_when_local: function() {
 		var me = this;
@@ -838,7 +873,7 @@ erpnext.pos.PointOfSale = Class.extend({
 		} else {
 			me.modes_of_payment = [];
 			$.ajax("/api/resource/Mode of Payment").success(function(data) {
-				$.each(data.data, function(i, d) { me.modes_of_payment.push(d.name); });
+				$.each(data.data, function(i, d) { if (d.name != "Bank Draft" && d.name != "Credit Card" && d.name != "Wire Transfer"){me.modes_of_payment.push(d.name);} });
 				callback();
 			});
 		}
@@ -846,7 +881,7 @@ erpnext.pos.PointOfSale = Class.extend({
 	make_payment: function() {
 		var me = this;
 		var no_of_items = this.frm.doc.items.length;
-
+		var custom_currency_type = ["USD", "HTD"]
 		if (no_of_items == 0)
 			msgprint(__("Payment cannot be made for empty cart"));
 		else {
@@ -856,19 +891,28 @@ erpnext.pos.PointOfSale = Class.extend({
 				var default_mode = me.frm.doc.mode_of_payment ? me.frm.doc.mode_of_payment :
 					me.modes_of_payment.indexOf(__("Cash"))!==-1 ? __("Cash") : undefined;
 
+				var type = custom_currency_type ? custom_currency_type :
+					custom_currency_type.indexOf(__("HTD"))!==-1 ? __("HTD") : undefined;
+				console.log(me.modes_of_payment,"----------")
 				// show payment wizard
 				var dialog = new frappe.ui.Dialog({
 					width: 400,
 					title: 'Payment',
 					fields: [
 						{fieldtype:'Currency',
-							fieldname:'total_amount', label: __('Total Amount'),
+							fieldname:'total_amount', label: __( get_currency_symbol() + " " +' Amount'), 
 							"default": me.frm.doc.grand_total},
+						{fieldtype:'Currency',
+							fieldname:'total_amount_G', label: __('Total HTG'),
+							"default": me.frm.doc.base_net_total},
 						{fieldtype:'Select', fieldname:'mode_of_payment',
 							label: __('Mode of Payment'),
 							options: me.modes_of_payment.join('\n'), reqd: 1,
 							"default": default_mode},
-						{fieldtype:'Currency', fieldname:'paid_amount', label:__('Amount Paid'),
+						{fieldtype:'Select', fieldname:'currency_type',
+							label: __('Pay Value'),
+							options: custom_currency_type.join('\n')},
+						{fieldtype:'Currency', fieldname:'paid_amount', label:__('Paid HTD'),
 							reqd:1, "default": me.frm.doc.grand_total,
 							change: function() {
 								var values = dialog.get_values();
@@ -885,15 +929,40 @@ erpnext.pos.PointOfSale = Class.extend({
 								}
 
 								dialog.set_value("change", rounded_change);
+								dialog.set_value("change_to_htg", rounded_change * 5);
 								dialog.get_input("change").trigger("change");
+								dialog.get_input("change_to_htg").trigger("change");
 
 							}},
-						{fieldtype:'Currency', fieldname:'change', label: __('Change'),
+						{fieldtype:'Currency', fieldname:'paid_amount_to_usd', label: __('Paid USD'),
+							"default": 0.0, hidden: 1, change: function() {
+
+								var values = dialog.get_values();
+								// var write_off_amount = (flt(values.paid_amount) - flt(values.change)) - values.total_amount;
+								dialog.set_value("paid_amount",values.paid_amount_to_usd *65);
+
+								var actual_changes = flt(values.paid_amount_to_usd *65 - values.total_amount,
+									precision("paid_amount"));
+								dialog.set_value("change", actual_changes);
+								dialog.set_value("change_to_htg", actual_changes *5);
+							}
+						},
+						{fieldtype:'Currency', fieldname:'change', label: __('Change HTD'),
 							"default": 0.0, hidden: 1, change: function() {
 								var values = dialog.get_values();
 								var write_off_amount = (flt(values.paid_amount) - flt(values.change)) - values.total_amount;
 								dialog.get_field("write_off_amount").toggle(write_off_amount);
 								dialog.set_value("write_off_amount", write_off_amount);
+							}
+						},
+						{fieldtype:'Currency', fieldname:'change_to_htg', label: __('Change HTG'),
+							"default": 0.0, hidden: 1, change: function() {
+
+
+								// var values = dialog.get_values();
+								// var write_off_amount = (flt(values.paid_amount) - flt(values.change)) - values.total_amount;
+								// dialog.get_field("write_off_amount").toggle(write_off_amount);
+								// dialog.set_value("write_off_amount", write_off_amount);
 							}
 						},
 						{fieldtype:'Currency', fieldname:'write_off_amount',
@@ -903,40 +972,67 @@ erpnext.pos.PointOfSale = Class.extend({
 				me.dialog = dialog;
 				dialog.show();
 
+				dialog.set_value("currency_type", "HTD");
 				// make read only
 				dialog.get_input("total_amount").prop("disabled", true);
+				dialog.get_input("total_amount_G").prop("disabled", true);
 				dialog.get_input("write_off_amount").prop("disabled", true);
-
+			
 				// toggle amount paid and change
 				dialog.get_input("mode_of_payment").on("change", function() {
 					var is_cash = dialog.get_value("mode_of_payment") === __("Cash");
 					dialog.get_field("paid_amount").toggle(is_cash);
 					dialog.get_field("change").toggle(is_cash);
-
-					// original code for reference
-
-					// if (is_cash && !dialog.get_value("change")) {
-					// 	// set to nearest 5
-					// 	dialog.set_value("paid_amount", dialog.get_value("total_amount"));
-					// 	dialog.get_input("paid_amount").trigger("change");
-					// } else if (!is_cash) {
-					// 	dialog.set_value("paid_amount", dialog.get_value("total_amount"));
-					// 	dialog.set_value("change", 0);
-					// }
-					
+					dialog.get_field("paid_amount_to_usd").toggle(is_cash);
+					dialog.get_field("currency_type").toggle(is_cash);
+					dialog.get_field("change_to_htg").toggle(is_cash)
 					// original code for reference
 
 					if (is_cash && !dialog.get_value("change")) {
 						// set to nearest 5
-						dialog.set_value("paid_amount", me.wrapper.find("input[data-fieldname='amt_paid_by_customer']").val());
+						dialog.set_value("paid_amount", dialog.get_value("total_amount"));
 						dialog.get_input("paid_amount").trigger("change");
 					} else if (!is_cash) {
 						dialog.set_value("paid_amount", dialog.get_value("total_amount"));
 						dialog.set_value("change", 0);
 					}
+					
+					// original code for reference
+
+					// if (is_cash && !dialog.get_value("change")) {
+					// 	// set to nearest 5
+					// 	dialog.set_value("paid_amount", me.wrapper.find("input[data-fieldname='amt_paid_by_customer']").val());
+					// 	dialog.get_input("paid_amount").trigger("change");
+					// } else if (!is_cash) {
+					// 	dialog.set_value("paid_amount", dialog.get_value("total_amount"));
+					// 	dialog.set_value("change", 0);
+					// }
 
 
 				}).trigger("change");
+
+				dialog.get_input("currency_type").on("change", function() {
+					var is_usd = dialog.get_value("currency_type") === __("USD");
+					// dialog.get_field("paid_amount").toggle(is_usd);
+					// dialog.get_field("change").toggle(is_cash);
+					dialog.get_field("paid_amount_to_usd").toggle(is_usd);
+					// original code for reference
+
+					if (is_usd ) {
+						dialog.get_input("paid_amount").parent().parent().parent().parent().hide();
+						// dialog.get_input("change").parent().parent().parent().parent().hide();
+						// set to nearest 5
+						// dialog.set_value("paid_amount", dialog.get_value("total_amount"));
+						// dialog.get_input("paid_amount").trigger("change");
+					} else if (!is_usd) {
+						dialog.get_input("paid_amount").parent().parent().parent().parent().show();
+						dialog.get_input("change").parent().parent().parent().parent().show();
+						// dialog.set_value("paid_amount", dialog.get_value("total_amount"));
+						// dialog.set_value("change", 0);
+					}
+				}).trigger("change");
+
+
 
 				me.set_pay_button(dialog);	
 			});

@@ -10,11 +10,11 @@
   "doctype": "Customer Group", 
   "is_group": "Yes", 
   "lft": 1, 
-  "modified": "2016-06-21 18:24:18.877869", 
+  "modified": "2016-07-10 09:57:05.365018", 
   "name": "All Customer Groups", 
   "old_parent": "", 
   "parent_customer_group": "", 
-  "rgt": 10
+  "rgt": 16
  }, 
  {
   "accounts": [], 
@@ -83,5 +83,56 @@
   "old_parent": "All Customer Groups", 
   "parent_customer_group": "All Customer Groups", 
   "rgt": 9
+ }, 
+ {
+  "accounts": [], 
+  "credit_days": 0, 
+  "credit_days_based_on": "", 
+  "credit_limit": 0.0, 
+  "customer_group_name": "Individual", 
+  "default_price_list": null, 
+  "docstatus": 0, 
+  "doctype": "Customer Group", 
+  "is_group": "No", 
+  "lft": 10, 
+  "modified": "2016-07-10 09:57:05.333013", 
+  "name": "Individual", 
+  "old_parent": "All Customer Groups", 
+  "parent_customer_group": "All Customer Groups", 
+  "rgt": 11
+ }, 
+ {
+  "accounts": [], 
+  "credit_days": 0, 
+  "credit_days_based_on": "", 
+  "credit_limit": 0.0, 
+  "customer_group_name": "Non Profit", 
+  "default_price_list": null, 
+  "docstatus": 0, 
+  "doctype": "Customer Group", 
+  "is_group": "No", 
+  "lft": 12, 
+  "modified": "2016-07-10 09:57:05.357941", 
+  "name": "Non Profit", 
+  "old_parent": "All Customer Groups", 
+  "parent_customer_group": "All Customer Groups", 
+  "rgt": 13
+ }, 
+ {
+  "accounts": [], 
+  "credit_days": 0, 
+  "credit_days_based_on": "", 
+  "credit_limit": 0.0, 
+  "customer_group_name": "Government", 
+  "default_price_list": null, 
+  "docstatus": 0, 
+  "doctype": "Customer Group", 
+  "is_group": "No", 
+  "lft": 14, 
+  "modified": "2016-07-10 09:57:05.367092", 
+  "name": "Government", 
+  "old_parent": "All Customer Groups", 
+  "parent_customer_group": "All Customer Groups", 
+  "rgt": 15
  }
 ]

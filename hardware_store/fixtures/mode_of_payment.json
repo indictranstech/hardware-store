@@ -1,0 +1,58 @@
+[
+ {
+  "accounts": [], 
+  "docstatus": 0, 
+  "doctype": "Mode of Payment", 
+  "mode_of_payment": "Cheque", 
+  "modified": "2016-07-10 09:57:05.927152", 
+  "name": "Cheque"
+ }, 
+ {
+  "accounts": [], 
+  "docstatus": 0, 
+  "doctype": "Mode of Payment", 
+  "mode_of_payment": "Cash", 
+  "modified": "2016-07-10 09:57:05.944392", 
+  "name": "Cash"
+ }, 
+ {
+  "accounts": [], 
+  "docstatus": 0, 
+  "doctype": "Mode of Payment", 
+  "mode_of_payment": "Credit Card", 
+  "modified": "2016-07-10 09:57:05.948778", 
+  "name": "Credit Card"
+ }, 
+ {
+  "accounts": [], 
+  "docstatus": 0, 
+  "doctype": "Mode of Payment", 
+  "mode_of_payment": "Wire Transfer", 
+  "modified": "2016-07-10 09:57:05.953013", 
+  "name": "Wire Transfer"
+ }, 
+ {
+  "accounts": [], 
+  "docstatus": 0, 
+  "doctype": "Mode of Payment", 
+  "mode_of_payment": "Bank Draft", 
+  "modified": "2016-07-10 09:57:05.956294", 
+  "name": "Bank Draft"
+ }, 
+ {
+  "accounts": [], 
+  "docstatus": 0, 
+  "doctype": "Mode of Payment", 
+  "mode_of_payment": "Credit to account", 
+  "modified": "2016-07-10 10:46:07.099085", 
+  "name": "Credit to account"
+ }, 
+ {
+  "accounts": [], 
+  "docstatus": 0, 
+  "doctype": "Mode of Payment", 
+  "mode_of_payment": "Bank Deposit", 
+  "modified": "2016-07-10 10:46:26.845123", 
+  "name": "Bank Deposit"
+ }
+]

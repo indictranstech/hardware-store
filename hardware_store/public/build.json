@@ -8,6 +8,7 @@
 		"public/pos/pos_item.html",
 		"public/pos/pos_tax_row.html",
 		"public/pos/pos.js",
-		"public/pos/expense_template.html"
+		"public/pos/expense_template.html",
+		"public/pos/currency_exchange_rate_template.html"
 	]
 }

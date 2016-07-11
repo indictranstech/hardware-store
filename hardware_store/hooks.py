@@ -118,4 +118,4 @@ scheduler_events = {
 # 	"frappe.desk.doctype.event.event.get_events": "hardware_store.event.get_events"
 # }
 
-fixtures= ['Custom Script','Property Setter','Custom Field','Currency','Customer Group','Role']
+fixtures= ['Custom Script','Property Setter','Custom Field','Currency','Customer Group','Role','Mode of Payment']

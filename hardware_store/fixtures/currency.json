@@ -1602,10 +1602,10 @@
   "currency_name": "HTG", 
   "docstatus": 0, 
   "doctype": "Currency", 
-  "enabled": 0, 
+  "enabled": 1, 
   "fraction": "Centime", 
   "fraction_units": 100, 
-  "modified": "2016-07-08 11:34:25.041629", 
+  "modified": "2016-07-10 09:57:14.995002", 
   "name": "HTG", 
   "number_format": "#,###.##", 
   "smallest_currency_fraction_value": 0.0, 
@@ -1811,12 +1811,12 @@
   "docstatus": 0, 
   "doctype": "Currency", 
   "enabled": 1, 
-  "fraction": null, 
-  "fraction_units": 0, 
-  "modified": "2016-07-07 20:29:51.562764", 
+  "fraction": "Centime", 
+  "fraction_units": 100, 
+  "modified": "2016-07-10 10:08:50.169469", 
   "name": "HTD", 
-  "number_format": "", 
+  "number_format": "#,###.##", 
   "smallest_currency_fraction_value": 0.0, 
-  "symbol": null
+  "symbol": "HTD"
  }
 ]
