@@ -47,5 +47,16 @@ function get_rate_from_item (item, customer_group) {
  frappe.ui.form.on("Quotation","onload",function(doc, cdt, cdn){
  	if (cint(frappe.defaults.get_user_defaults("fs_pos_view"))===1)
 						erpnext.pos.toggle(cur_frm, true);
-
+	if(cur_frm.doc.__islocal){
+		// cur_frm.set_value("customer","Rudy")
+		frappe.call({
+	 		method : "hardware_store.customization.customization.default_customer",
+	 		callback:function(r) {
+	 			if(r.message){
+	 				console.log(JSON.stringify(r.message))
+	 				cur_frm.set_value("customer",r.message[0]['name'])
+	 			}
+	 		}
+	 	})
+ 	}
  })

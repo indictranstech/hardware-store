@@ -266,7 +266,7 @@ erpnext.pos.PointOfSale = Class.extend({
 			});
 			$(parent).append($(quotation_btn))
 		}
-		if (this.frm.doctype == "Quotation" && this.frm.doc.docstatus===1) {
+		if (this.frm.doctype == "Quotation") {
 			parent = this.wrapper.find(".quotation-area")
 			sales_invoice_btn = cur_frm.add_custom_button(__("Create Sales Invoice"),function(){
 				frappe.model.open_mapped_doc({
@@ -279,15 +279,17 @@ erpnext.pos.PointOfSale = Class.extend({
 	},
 	make_currency_convertor: function() {
 		var me = this;
-		parent = this.wrapper.find(".currency-convertor")
-		convertor = cur_frm.add_custom_button(__("Convert Money"), function() {
-			if (me.wrapper.find("input[data-fieldname='customer']").val()){
-				me.dialog_currency_convertor()
-			}else {
-				msgprint(__("Please Select Customer first"))
-			}
-		});
-		$(parent).append($(convertor))
+		if (this.frm.doctype == "Sales Invoice" && this.frm.doc.docstatus===0){
+			parent = this.wrapper.find(".currency-convertor")
+			convertor = cur_frm.add_custom_button(__("Convert Money"), function() {
+				if (me.wrapper.find("input[data-fieldname='customer']").val()){
+					me.dialog_currency_convertor()
+				}else {
+					msgprint(__("Please Select Customer first"))
+				}
+			});
+			$(parent).append($(convertor))
+		}			
 	},
 
 	dialog_currency_convertor: function  () {
@@ -470,6 +472,8 @@ erpnext.pos.PointOfSale = Class.extend({
 		                        {"fieldtype": "Section Break", "fieldname": "cb3"},
 		                        {fieldtype:"Link", label:__("Expense Reason"), options:'Expense Reason', fieldname:"reason"},
 		                        {"fieldtype": "Column Break", "fieldname": "cb"},
+		                        {"fieldtype": "Data", "label": __("Description"), "fieldname": "description"},
+		                        {"fieldtype": "Column Break", "fieldname": "cb1"},
 		                        {"fieldtype": "Float", "label": __("Expense Amount"), "fieldname": "amount"},
 		                        {"fieldtype": "Section Break", "fieldname": "cb1"},
 		                        {"fieldtype": "Button", "label": __("Add"), "fieldname": "make_expense_entry"},
@@ -506,6 +510,8 @@ erpnext.pos.PointOfSale = Class.extend({
 		                        {"fieldtype": "Section Break", "fieldname": "cb3"},
 		                        {fieldtype:"Link", label:__("Expense Reason"), options:'Expense Reason', fieldname:"reason"},
 		                        {"fieldtype": "Column Break", "fieldname": "cb"},
+		                        {"fieldtype": "Data", "label": __("Description"), "fieldname": "description"},
+		                        {"fieldtype": "Column Break", "fieldname": "cb1"},
 		                        {"fieldtype": "Float", "label": __("Expense Amount"), "fieldname": "amount"},
 		                        {"fieldtype": "Section Break", "fieldname": "cb1"},
 		                        {"fieldtype": "Button", "label": __("Add"), "fieldname": "make_expense_entry"},
@@ -524,12 +530,14 @@ erpnext.pos.PointOfSale = Class.extend({
 		var me = this;
 		exp_reason = $(cur_dialog.body).find("input[data-fieldname='reason']").val()
 		exp_amount = $(cur_dialog.body).find("input[data-fieldname='amount']").val()
+		exp_descrp = $(cur_dialog.body).find("input[data-fieldname='description']").val()
 		if(exp_reason && exp_amount){
 			frappe.call({
 				method: 'hardware_store.customization.rudy_purchase_order.create_expense_entries',
 				args: {
 					"reason" : exp_reason,
-					"amount" : exp_amount
+					"amount" : exp_amount,
+					"description": exp_descrp
 				},
 				freeze: true,
                 freeze_message:"Expense Entry Creating...",
@@ -712,7 +720,10 @@ erpnext.pos.PointOfSale = Class.extend({
 
 	},
 	hide_quotation_area: function(){
-		this.wrapper.find(".quotation-area").toggleClass("hide", this.frm.doc.docstatus!==0);
+		if(cur_frm.doc.doctype == "quotation"){
+			this.wrapper.find(".quotation-area").toggleClass("hide", this.frm.doc.docstatus!==1);
+		}
+			
 	},
 
 	refresh_item_list: function() {

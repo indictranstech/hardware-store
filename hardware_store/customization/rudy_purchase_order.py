@@ -20,7 +20,7 @@ def get_buying_prices(supplier, item):
 @frappe.whitelist()
 def get_expense_resons():
 	frappe.errprint(today())
-	expense_data = frappe.db.sql("""select etr.expense_reasons, etr.expense_amount from 
+	expense_data = frappe.db.sql("""select etr.expense_reasons, etr.expense_amount, etr.description from 
 		`tabExpense Entry` e, `tabExpense Entries` etr where e.date = '%s' and 
 		e.name = etr.parent """%(today()),as_dict=1)
 	# frappe.errprint(expense_data[0][1])
@@ -28,7 +28,7 @@ def get_expense_resons():
 	return expense_data
 
 @frappe.whitelist()
-def create_expense_entries(reason, amount):
+def create_expense_entries(reason, amount, description):
 	todays_entry = frappe.db.get_values("Expense Entry", {'date' : today()}, ['name'], as_dict =True)
 	
 	if todays_entry: 
@@ -36,6 +36,7 @@ def create_expense_entries(reason, amount):
 		etr_ch = etr.append('expense_entries', {})
 		etr_ch.expense_reasons = reason
 		etr_ch.expense_amount = amount
+		etr_ch.description = description
 
 		etr.flags.ignore_permissions = 1
 		etr.save()
@@ -46,6 +47,7 @@ def create_expense_entries(reason, amount):
 		exp_dtl = exp.append("expense_entries",{})
 		exp_dtl.expense_reasons = reason
 		exp_dtl.expense_amount = amount
+		exp_dtl.description = description
 
 		exp.flags.ignore_permissions = 1
 		exp.save()
