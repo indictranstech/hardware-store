@@ -89,4 +89,42 @@ function get_rate_from_item (item, customer_group) {
 // 	}
 //  })
 
+frappe.ui.form.on("Sales Invoice Item", {
+	uom: function(doc, cdt, cdn) {
+		console.log(this);
+		var me = this;
+		var item = frappe.get_doc(cdt, cdn);
+		if(item.item_code && item.uom) {
+			return cur_frm.call({
+				method: "erpnext.stock.get_item_details.get_conversion_factor",
+				child: item,
+				args: {
+					item_code: item.item_code,
+					uom: item.uom
+				},
+				callback: function(r) {
+					if(!r.exc) {
+						custom_conversion_factor(cur_frm.doc, cdt, cdn);
+					}
+				}
+			});
+		}
+	},
 
+	qty_in_uom: function(doc, cdt, cdn) {
+		custom_conversion_factor(doc, cdt, cdn)
+	},
+
+	conversion_factor: function(doc, cdt, cdn) {
+		custom_conversion_factor(doc, cdt, cdn)
+	},
+});
+
+custom_conversion_factor = function(doc, cdt, cdn) {
+	if(frappe.meta.get_docfield(cdt, "qty_in_uom", cdn)) {
+		var item = frappe.get_doc(cdt, cdn);
+		frappe.model.round_floats_in(item, ["qty_in_uom", "conversion_factor"]);
+		item.qty = flt(item.qty_in_uom * item.conversion_factor, precision("qty_in_uom", item));
+		refresh_field("qty", item.name, item.parentfield);
+	}
+}
