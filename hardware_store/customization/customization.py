@@ -78,3 +78,8 @@ def _make_customer(source_name, ignore_permissions=False):
 				frappe.throw(_("Please create Customer from Lead {0}").format(lead_name))
 		else:
 			return customer_name
+
+@frappe.whitelist()
+def default_customer():
+	query = """SELECT name from `tabCustomer` where name ='Cash Customer'"""
+	return frappe.db.sql(query,as_dict=True)

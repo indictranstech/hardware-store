@@ -37,6 +37,7 @@ def rate(args):
 						and 
 							chld_tbl.minimum_qty = %s
 						""" %(Price_list, item_name, required_qty),as_dict=1)
+	print "rate", rate,"----------------"
 	return rate
 
 
@@ -52,23 +53,31 @@ def quantity_range(Price_list, item_name):
 						and 
 							NOT chld_tbl.minimum_qty = 0
 						""" %(Price_list, item_name),as_dict=1)
+	print "qqqq",quantity,"--------------"
 	return quantity
  
 def sort_quantity(item_qty, quantity):
  	item_quanties=[]
+ 	sorted_qty =[]
  	for min_qty in quantity:
-		item_quanties.append(min_qty.minimum_qty)
-		
+		item_quanties.append(min_qty['minimum_qty'])
+	sorted_qty = sorted(item_quanties)
 	required_qty =0
-	for qty in sorted(item_quanties):
-		if int(item_qty) <= qty:
-			required_qty = qty
-			break
-		elif int(item_qty > qty):
-			required_qty = max(sorted(item_quanties))
-			break
-
-	return required_qty
+	if item_quanties and sorted_qty:
+		for qty in sorted_qty:
+			if int(item_qty) <= int(qty):
+				print type (int(qty))," : ", type(int(item_qty)), sorted_qty
+				return int(qty)
+				# print "inside",required_qty
+				# break
+			elif int(max(item_quanties)) < int(item_qty):
+				print "outside",type (int(qty))," : ", type(int(item_qty)), sorted_qty
+				return int(max(item_quanties))
+				# print "outside",required_qty
+				# break
+	# print required_qty,"000000000000"
+	# print "required_qty",required_qty
+	# return required_qty
 
 @frappe.whitelist()
 def make_sales_invoice(source_name, target_doc=None, ignore_permissions=False):
