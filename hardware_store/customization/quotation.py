@@ -25,8 +25,6 @@ def rate(args):
 		quantity = quantity_range(Price_list, item_name)
 		required_qty =sort_quantity(item_qty, quantity)
 	
-
-
 	rate = frappe.db.sql("""SELECT chld_tbl.rate as rate 
 					from 
 						`tabItem` as item, `%s` as chld_tbl 
@@ -36,8 +34,8 @@ def rate(args):
 							item.name = '%s'
 						and 
 							chld_tbl.minimum_qty = %s
-						""" %(Price_list, item_name, required_qty),as_dict=1)
-	print "rate", rate,"----------------"
+						""" %(Price_list, item_name, required_qty or 0),as_dict=1)
+	
 	return rate
 
 
@@ -53,7 +51,7 @@ def quantity_range(Price_list, item_name):
 						and 
 							NOT chld_tbl.minimum_qty = 0
 						""" %(Price_list, item_name),as_dict=1)
-	print "qqqq",quantity,"--------------"
+	
 	return quantity
  
 def sort_quantity(item_qty, quantity):
@@ -66,12 +64,10 @@ def sort_quantity(item_qty, quantity):
 	if item_quanties and sorted_qty:
 		for qty in sorted_qty:
 			if int(item_qty) <= int(qty):
-				print type (int(qty))," : ", type(int(item_qty)), sorted_qty
 				return int(qty)
 				# print "inside",required_qty
 				# break
 			elif int(max(item_quanties)) < int(item_qty):
-				print "outside",type (int(qty))," : ", type(int(item_qty)), sorted_qty
 				return int(max(item_quanties))
 				# print "outside",required_qty
 				# break
