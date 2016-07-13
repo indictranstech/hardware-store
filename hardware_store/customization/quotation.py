@@ -25,8 +25,6 @@ def rate(args):
 		quantity = quantity_range(Price_list, item_name)
 		required_qty =sort_quantity(item_qty, quantity)
 	
-
-
 	rate = frappe.db.sql("""SELECT chld_tbl.rate as rate 
 					from 
 						`tabItem` as item, `%s` as chld_tbl 
@@ -36,7 +34,8 @@ def rate(args):
 							item.name = '%s'
 						and 
 							chld_tbl.minimum_qty = %s
-						""" %(Price_list, item_name, required_qty),as_dict=1)
+						""" %(Price_list, item_name, required_qty or 0),as_dict=1)
+	
 	return rate
 
 
@@ -52,24 +51,23 @@ def quantity_range(Price_list, item_name):
 						and 
 							NOT chld_tbl.minimum_qty = 0
 						""" %(Price_list, item_name),as_dict=1)
+	
 	return quantity
  
 def sort_quantity(item_qty, quantity):
  	item_quanties=[]
+ 	sorted_qty =[]
  	for min_qty in quantity:
-		item_quanties.append(min_qty.minimum_qty)
-		
+		item_quanties.append(min_qty['minimum_qty'])
+	sorted_qty = sorted(item_quanties)
 	required_qty =0
-	for qty in sorted(item_quanties):
-		if int(item_qty) <= qty:
-			required_qty = qty
-			break
-		elif int(item_qty > qty):
-			required_qty = max(sorted(item_quanties))
-			break
-
-	return required_qty
-
+	if item_quanties and sorted_qty:
+		for qty in sorted_qty:
+			if int(item_qty) <= int(qty):
+				return int(qty)
+			elif int(max(item_quanties)) < int(item_qty):
+				return int(max(item_quanties))
+			
 @frappe.whitelist()
 def make_sales_invoice(source_name, target_doc=None, ignore_permissions=False):
 	def postprocess(source, target):
