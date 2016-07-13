@@ -118,7 +118,7 @@ def create_csv(to_date):
 	w = UnicodeWriter()
 	w = add_header(w)
 
-	# w = add_data(w, to_date)
+	w = add_data(w, to_date)
 
 	# write out response as a type csv
 	frappe.response['result'] = cstr(w.getvalue())
@@ -135,25 +135,25 @@ def add_header(w):
 	# 	 "Company", "Naming Series"])
 	return w
 
-# def add_data(w, to_date):
-# 	sales_total = get_sales_total(to_date)
-# 	for sales_data in sales_total:
-# 		w.write
+def add_data(w, to_date):
+	sales_total = get_sales_total(to_date)
+	for sales_data in sales_total:
+		w.writerow("data")
 
-# 	dates = get_dates(args)
-# 	employees = get_active_employees()
-# 	existing_attendance_records = get_existing_attendance_records(args)
-# 	for date in dates:
-# 		for employee in employees:
-# 			existing_attendance = {}
-# 			if existing_attendance_records \
-# 				and tuple([date, employee.name]) in existing_attendance_records:
-# 					existing_attendance = existing_attendance_records[tuple([date, employee.name])]
-# 			row = [
-# 				existing_attendance and existing_attendance.name or "",
-# 				employee.name, employee.employee_name, date,
-# 				existing_attendance and existing_attendance.status or "", employee.company,
-# 				existing_attendance and existing_attendance.naming_series or get_naming_series(),
-# 			]
-# 			w.writerow(row)
-# 	return w
+	# dates = get_dates(args)
+	# employees = get_active_employees()
+	# existing_attendance_records = get_existing_attendance_records(args)
+	# for date in dates:
+	# 	for employee in employees:
+	# 		existing_attendance = {}
+	# 		if existing_attendance_records \
+	# 			and tuple([date, employee.name]) in existing_attendance_records:
+	# 				existing_attendance = existing_attendance_records[tuple([date, employee.name])]
+	# 		row = [
+	# 			existing_attendance and existing_attendance.name or "",
+	# 			employee.name, employee.employee_name, date,
+	# 			existing_attendance and existing_attendance.status or "", employee.company,
+	# 			existing_attendance and existing_attendance.naming_series or get_naming_series(),
+	# 		]
+	# 		w.writerow(row)
+	return w
