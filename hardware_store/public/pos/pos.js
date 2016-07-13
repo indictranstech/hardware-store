@@ -848,11 +848,31 @@ erpnext.pos.PointOfSale = Class.extend({
 
 			this.with_modes_of_payment(function() {
 				// prefer cash payment!
-				var default_mode = me.frm.doc.mode_of_payment ? me.frm.doc.mode_of_payment :
-					me.modes_of_payment.indexOf(__("Cash"))!==-1 ? __("Cash") : undefined;
+			var default_mode = me.frm.doc.mode_of_payment ? me.frm.doc.mode_of_payment :
+				me.modes_of_payment.indexOf(__("Cash"))!==-1 ? __("Cash") : undefined;
 
-				var type = custom_currency_type ? custom_currency_type :
-					custom_currency_type.indexOf(__("HTD"))!==-1 ? __("HTD") : undefined;
+			var type = custom_currency_type ? custom_currency_type :
+				custom_currency_type.indexOf(__("HTD"))!==-1 ? __("HTD") : undefined;
+
+			var usd_exchange_rate = 0
+			var htd_exchange_rate = 0
+			frappe.call({
+					method : "hardware_store.hardware_store.doctype.configuration.configuration.currency_data",
+					callback:function(r) {
+						if(r.message){
+							$(dialog.body).find("[data-fieldname='currency_exchange_list']").html(frappe.render_template("currency_exchange_rate_template", {"data":r.message}))
+							for (var i =0 ; i< r.message.length ; i++){
+								if(r.message[i].name =="USD-HTD" ){
+									usd_exchange_rate = r.message[i]['exchange_rate']
+
+								}
+								if(r.message[i].name == "HTD-HTG"){
+									htd_exchange_rate = r.message[i]['exchange_rate']
+								}
+							}
+						}
+					}
+				})
 				// show payment wizard
 				var dialog = new frappe.ui.Dialog({
 					width: 400,
@@ -888,7 +908,9 @@ erpnext.pos.PointOfSale = Class.extend({
 								}
 
 								dialog.set_value("change", rounded_change);
-								dialog.set_value("change_to_htg", rounded_change * 5);
+								if (usd_exchange_rate && htd_exchange_rate){
+									dialog.set_value("change_to_htg", rounded_change * htd_exchange_rate);
+								}
 								dialog.get_input("change").trigger("change");
 								dialog.get_input("change_to_htg").trigger("change");
 
@@ -897,13 +919,15 @@ erpnext.pos.PointOfSale = Class.extend({
 							"default": 0.0, hidden: 1, change: function() {
 
 								var values = dialog.get_values();
+								if (usd_exchange_rate && htd_exchange_rate){
 								// var write_off_amount = (flt(values.paid_amount) - flt(values.change)) - values.total_amount;
-								dialog.set_value("paid_amount",values.paid_amount_to_usd *65);
+									dialog.set_value("paid_amount",values.paid_amount_to_usd * usd_exchange_rate);
 
-								var actual_changes = flt(values.paid_amount_to_usd *65 - values.total_amount,
+								var actual_changes = flt(values.paid_amount_to_usd * usd_exchange_rate - values.total_amount,
 									precision("paid_amount"));
 								dialog.set_value("change", actual_changes);
-								dialog.set_value("change_to_htg", actual_changes *5);
+								dialog.set_value("change_to_htg", actual_changes * htd_exchange_rate);
+								}
 							}
 						},
 						{fieldtype:'Currency', fieldname:'change', label: __('Change HTD'),
