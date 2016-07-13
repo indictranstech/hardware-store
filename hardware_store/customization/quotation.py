@@ -65,16 +65,9 @@ def sort_quantity(item_qty, quantity):
 		for qty in sorted_qty:
 			if int(item_qty) <= int(qty):
 				return int(qty)
-				# print "inside",required_qty
-				# break
 			elif int(max(item_quanties)) < int(item_qty):
 				return int(max(item_quanties))
-				# print "outside",required_qty
-				# break
-	# print required_qty,"000000000000"
-	# print "required_qty",required_qty
-	# return required_qty
-
+			
 @frappe.whitelist()
 def make_sales_invoice(source_name, target_doc=None, ignore_permissions=False):
 	def postprocess(source, target):

@@ -1,0 +1,23 @@
+{
+ "content": null, 
+ "creation": "2016-07-12 15:42:51.110040", 
+ "docstatus": 0, 
+ "doctype": "Page", 
+ "icon": "icon-truck", 
+ "idx": 0, 
+ "modified": "2016-07-12 15:43:51.672624", 
+ "modified_by": "Administrator", 
+ "module": "Hardware Store", 
+ "name": "end-of-day-sales-rep", 
+ "owner": "Administrator", 
+ "page_name": "End of Day Sales report", 
+ "roles": [
+  {
+   "role": "Administrator"
+  }
+ ], 
+ "script": null, 
+ "standard": "Yes", 
+ "style": null, 
+ "title": "EOD Report"
+}
