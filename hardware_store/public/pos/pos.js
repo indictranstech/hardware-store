@@ -399,8 +399,7 @@ erpnext.pos.PointOfSale = Class.extend({
 			if(dialog.get_input('convert_to').val()) {
 				$.each(me.frm.doc["items"] || [], function(i, d) {
 					if (d.item_name == "Money Convertor") {
-						if (d.qty == 1) {
-							console.log("inside")
+						if (d.qty_in_uom == 1) {
 							frappe.model.clear_doc(d.doctype, d.name);
 							me.refresh_grid();
 						}
@@ -423,12 +422,12 @@ erpnext.pos.PointOfSale = Class.extend({
 		var child = frappe.model.add_child(me.frm.doc, this.frm.doctype + " Item", "items");
 		child.item_name = "Money Convertor"
 		child.description ="converted money"
-		child.qty = 1;
+		child.qty_in_uom = 1;
 		child.rate = dialog.get_input('convert_to').val();
 
 
 		frappe.after_ajax(function() {
-			me.frm.script_manager.trigger("qty", child.doctype, child.name);
+			me.frm.script_manager.trigger("qty_in_uom", child.doctype, child.name);
 		})
 	},
 
@@ -535,8 +534,6 @@ erpnext.pos.PointOfSale = Class.extend({
                 freeze_message:"Expense Entry Creating...",
 				callback: function(r) {
 					if(r.message){
-						console.log("callback")
-						console.log(r.message)
 						d.hide();
 						// cur_dialog.refresh();
 						me.re_render_popup();
@@ -626,7 +623,12 @@ erpnext.pos.PointOfSale = Class.extend({
 					if (serial_no)
 						frappe.model.set_value(d.doctype, d.name, "serial_no", d.serial_no + '\n' + serial_no);
 					else
-						frappe.model.set_value(d.doctype, d.name, "qty", d.qty + 1);
+						frappe.model.set_value(d.doctype, d.name, "qty_in_uom", d.qty_in_uom + 1);
+
+					// set the uom
+					$(me.wrapper).find("[data-item-code='"+ d.item_code +"']")
+					.find("select.uom-conversion")
+					.val(d.uom)
 				}
 			});
 		}
@@ -638,19 +640,20 @@ erpnext.pos.PointOfSale = Class.extend({
 		this.refresh();
 		this.refresh_search_box();
 	},
-	add_new_item_to_grid: function(item_code, serial_no) {
+	add_new_item_to_grid: function(item_code, serial_no, uoms) {
 		var me = this;
 
 		var child = frappe.model.add_child(me.frm.doc, this.frm.doctype + " Item", "items");
 		child.item_code = item_code;
-		child.qty = 1;
+		child.qty_in_uom = 1;
 
 		if (serial_no)
 			child.serial_no = serial_no;
 
 		this.frm.script_manager.trigger("item_code", child.doctype, child.name);
+
 		frappe.after_ajax(function() {
-			me.frm.script_manager.trigger("qty", child.doctype, child.name);
+			me.frm.script_manager.trigger("qty_in_uom", child.doctype, child.name);
 		})
 	},
 	refresh_search_box: function() {
@@ -670,7 +673,7 @@ erpnext.pos.PointOfSale = Class.extend({
 					frappe.model.clear_doc(d.doctype, d.name);
 					me.refresh_grid();
 				} else {
-					frappe.model.set_value(d.doctype, d.name, "qty", qty);
+					frappe.model.set_value(d.doctype, d.name, "qty_in_uom", qty);
 				}
 			}
 		});
@@ -729,9 +732,11 @@ erpnext.pos.PointOfSale = Class.extend({
 
 		$.each(this.frm.doc.items|| [], function(i, d) {
 			$(frappe.render_template("pos_bill_item", {
+				uom: d.uom,
 				item_code: d.item_code,
+				uoms: d.uoms.split(","),
 				item_name: (d.item_name===d.item_code || !d.item_name) ? "" : ("<br>" + d.item_name),
-				qty: d.qty,
+				qty: d.qty_in_uom,
 				actual_qty: d.actual_qty,
 				projected_qty: d.projected_qty,
 				rate: format_currency(d.rate, me.frm.doc.currency),
@@ -782,6 +787,11 @@ erpnext.pos.PointOfSale = Class.extend({
 		$(this.wrapper).find(".pos-qty-btn").on("click", function() {
 			var $item = $(this).parents(".pos-bill-item:first");
 			me.increase_decrease_qty($item, $(this).attr("data-action"));
+		});
+
+		$(this.wrapper).find(".uom-conversion").on("change", function() {
+			var item_code = $(this).parents(".pos-bill-item").attr("data-item-code");
+			me.change_uom(item_code, $(this).val());
 		});
 
 		this.focus();
@@ -1060,6 +1070,15 @@ erpnext.pos.PointOfSale = Class.extend({
 			dialog.hide();
 		})
 
+	},
+
+	change_uom: function(item_code, uom) {
+		var me = this;
+		$.each(this.frm.doc["items"] || [], function(i, d) {
+			if (d.item_code == item_code) {
+				frappe.model.set_value(d.doctype, d.name, "uom", uom);
+			}
+		});
 	}
 });
 

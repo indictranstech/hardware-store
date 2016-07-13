@@ -90,9 +90,21 @@ function get_rate_from_item (item, customer_group) {
 //  })
 
 frappe.ui.form.on("Sales Invoice Item", {
+	item_code: function(doc, cdt, cdn) {
+		var item = frappe.get_doc(cdt, cdn);
+		return frappe.call({
+			method: "hardware_store.customization.item.get_item_uom",
+			args: {
+				item_code: item.item_code
+			},
+			callback(r) {
+				item.uoms = r.message;
+				cur_frm.refresh_fields();
+			}
+		})
+	},
+
 	uom: function(doc, cdt, cdn) {
-		console.log(this);
-		var me = this;
 		var item = frappe.get_doc(cdt, cdn);
 		if(item.item_code && item.uom) {
 			return cur_frm.call({
@@ -113,10 +125,12 @@ frappe.ui.form.on("Sales Invoice Item", {
 
 	qty_in_uom: function(doc, cdt, cdn) {
 		custom_conversion_factor(doc, cdt, cdn)
+		cur_frm.refresh_fields()
 	},
 
 	conversion_factor: function(doc, cdt, cdn) {
 		custom_conversion_factor(doc, cdt, cdn)
+		cur_frm.refresh_fields()
 	},
 });
 
@@ -125,6 +139,5 @@ custom_conversion_factor = function(doc, cdt, cdn) {
 		var item = frappe.get_doc(cdt, cdn);
 		frappe.model.round_floats_in(item, ["qty_in_uom", "conversion_factor"]);
 		item.qty = flt(item.qty_in_uom * item.conversion_factor, precision("qty_in_uom", item));
-		refresh_field("qty", item.name, item.parentfield);
 	}
 }
