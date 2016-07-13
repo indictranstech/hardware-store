@@ -37,7 +37,7 @@ erpnext.EodReport = Class.extend({
 						}, "icon-refresh"),
 			export_btn: wrapper.page.set_secondary_action(__("Export"),
 				function() { 
-						alert("Page Under Construction");
+						// alert("Page Under Construction");
 							me.get_data_export();
 							// me.get_data();
 							// me.get_data_payment();
@@ -259,6 +259,17 @@ erpnext.EodReport = Class.extend({
 				}
 			}
 		});
-	}
+	},
+	get_data_export:function() {
+		// if(!this.frm.doc.att_fr_date || !this.frm.doc.att_to_date) {
+		// 	msgprint(__("Attendance From Date and Attendance To Date is mandatory"));
+		// 	return;
+		// }
+		window.location.href = repl(frappe.request.url +
+			'?cmd=%(cmd)s&from_date=%(from_date)s&to_date=%(to_date)s', {
+				cmd: "hardware_store.hardware_store.page.end_of_day_sales_rep.end_of_day_sales_rep.create_csv",
+				
+			});
+	},
 
 })
