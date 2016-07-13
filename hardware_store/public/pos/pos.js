@@ -24,30 +24,6 @@ erpnext.pos.PointOfSale = Class.extend({
 		this.wrapper.find('input.discount-percentage').on("change", function() {
 			frappe.model.set_value(me.frm.doctype, me.frm.docname,
 				"additional_discount_percentage", flt(this.value));
-			// me.calculate_change_return();
-			// alert("hello");
-			// value = flt(this.value)
-   //          return frappe.call({
-   //              method: "hardware_store.hardware_store.doctype.configuration.configuration.discount_limit",
-   //              callback: function(r) {
-   //                  if (r.message) {
-   //                      if (r.message >= me.frm.doc.net_total) {
-   //                      	frappe.model.set_value(me.frm.doctype, me.frm.docname, "additional_discount_percentage", 0.0);
-   //                          msgprint("To apply Discount , Net total should be greater the limit specified in configuration ")
-
-   //                      } 
-   //                      else {
-   //                      	if (value <= 10){
-   //                      		frappe.model.set_value(me.frm.doctype, me.frm.docname, "additional_discount_percentage", value);
-   //                      	}else{
-   //                      		frappe.model.set_value(me.frm.doctype, me.frm.docname, "additional_discount_percentage", 0.0);
-   //                      		msgprint("Discount should not be greater than 10 ")
-   //                      	}
-                            
-   //                      }
-   //                  }
-   //              }
-   //          })
 		});
 
 		if(cur_frm.doc.__islocal){
@@ -82,24 +58,7 @@ erpnext.pos.PointOfSale = Class.extend({
 
 		}
 
-		// if(cur_frm.doc.__islocal){
-		// 	$("body").keydown(function(e){
-		// 		if(e.keyCode == 73 && e.ctrlKey){
-		// 			alert("hello")
-		// 			// $("body").find(".currency-convertor").find(".btn.btn-secondary.btn-default").click()
-		// 		}
-		// 	});
-		// if(cur_frm.doc.__islocal){
-		// 	$("body").keydown(function(e){
-		// 		if(e.keyCode == 88 && e.ctrlKey){
-		// 			$("body").find(".btn.btn-default").click()
-		// 		}
-		// 	});
-
-		
-
 		this.wrapper.find('input.discount-amount').on("change", function() {
-			// frappe.model.set_value(me.frm.doctype, me.frm.docname, "discount_amount", flt(this.value));
 			value = flt(this.value)
 			frappe.call({
 				method: "hardware_store.hardware_store.doctype.configuration.configuration.discount_limit",
@@ -114,7 +73,6 @@ erpnext.pos.PointOfSale = Class.extend({
 			            		frappe.model.set_value(me.frm.doctype, me.frm.docname, "discount_amount", value);
 			            	}else{
 			            		frappe.model.set_value(me.frm.doctype, me.frm.docname, "discount_amount", 0.0);
-			            		// msgprint("Discount should not be greater than Discount Value %s "%(r.message[1]))
 			            		msgprint(__("Discount should not be greater than Discount Value") +" "+ r.message[1])
 			            	}
 			            }
@@ -358,20 +316,15 @@ erpnext.pos.PointOfSale = Class.extend({
 								dialog.fields_dict.exchange_rate.refresh();
 
 								label_convert_to = dialog.fields_dict['convert_to'].df.label.split(" ")
-								// dialog.fields_dict['convert_to'].set_label(label_convert_to[0] +" "
-								// 	+ values.convert_currency +" "+ label_convert_to[1])
 								dialog.fields_dict['convert_to'].set_label(values.convert_currency +" "+ label_convert_to[1])
 
 								label_converted_currency = dialog.fields_dict['converted_currency'].df.label.split(" ")
 								dialog.fields_dict['converted_currency'].set_label(values.default_currency +" "+ label_converted_currency[1])
-								
-								// me.frm.set_value("currency",r.message[0]['from_currency'])
 								dialog.set_value("exchange_rate", r.message[i]['exchange_rate'])
-								// me.frm.set_value("conversion_rate",r.message[2]['exchange_rate'])
 								me.frm.set_value("update_stock",0)
 							}
-								}
-							}
+						}
+					}
 								
 					}
 				}
@@ -402,7 +355,6 @@ erpnext.pos.PointOfSale = Class.extend({
 				$.each(me.frm.doc["items"] || [], function(i, d) {
 					if (d.item_name == "Money Convertor") {
 						if (d.qty == 1) {
-							console.log("inside")
 							frappe.model.clear_doc(d.doctype, d.name);
 							me.refresh_grid();
 						}
@@ -543,8 +495,6 @@ erpnext.pos.PointOfSale = Class.extend({
                 freeze_message:"Expense Entry Creating...",
 				callback: function(r) {
 					if(r.message){
-						console.log("callback")
-						console.log(r.message)
 						d.hide();
 						// cur_dialog.refresh();
 						me.re_render_popup();
@@ -773,7 +723,6 @@ erpnext.pos.PointOfSale = Class.extend({
 	},
 	set_totals: function() {
 		var me = this;
-		// console.log(me.frm.doc.base_amount,"------")
 		data = format_currency(me.frm.doc["base_total"], get_currency_symbol())
 		this.wrapper.find(".net-total").text(format_currency(me.frm.doc["net_total"], me.frm.doc.currency));
 		this.wrapper.find(".net-total1").text(format_currency(me.frm.doc["base_net_total"], "G"));
@@ -904,7 +853,6 @@ erpnext.pos.PointOfSale = Class.extend({
 
 				var type = custom_currency_type ? custom_currency_type :
 					custom_currency_type.indexOf(__("HTD"))!==-1 ? __("HTD") : undefined;
-				console.log(me.modes_of_payment,"----------")
 				// show payment wizard
 				var dialog = new frappe.ui.Dialog({
 					width: 400,
@@ -968,12 +916,6 @@ erpnext.pos.PointOfSale = Class.extend({
 						},
 						{fieldtype:'Currency', fieldname:'change_to_htg', label: __('Change HTG'),
 							"default": 0.0, hidden: 1, change: function() {
-
-
-								// var values = dialog.get_values();
-								// var write_off_amount = (flt(values.paid_amount) - flt(values.change)) - values.total_amount;
-								// dialog.get_field("write_off_amount").toggle(write_off_amount);
-								// dialog.set_value("write_off_amount", write_off_amount);
 							}
 						},
 						{fieldtype:'Currency', fieldname:'write_off_amount',
@@ -1008,38 +950,20 @@ erpnext.pos.PointOfSale = Class.extend({
 						dialog.set_value("change", 0);
 					}
 					
-					// original code for reference
-
-					// if (is_cash && !dialog.get_value("change")) {
-					// 	// set to nearest 5
-					// 	dialog.set_value("paid_amount", me.wrapper.find("input[data-fieldname='amt_paid_by_customer']").val());
-					// 	dialog.get_input("paid_amount").trigger("change");
-					// } else if (!is_cash) {
-					// 	dialog.set_value("paid_amount", dialog.get_value("total_amount"));
-					// 	dialog.set_value("change", 0);
-					// }
-
-
+					
 				}).trigger("change");
 
 				dialog.get_input("currency_type").on("change", function() {
 					var is_usd = dialog.get_value("currency_type") === __("USD");
-					// dialog.get_field("paid_amount").toggle(is_usd);
-					// dialog.get_field("change").toggle(is_cash);
 					dialog.get_field("paid_amount_to_usd").toggle(is_usd);
 					// original code for reference
 
 					if (is_usd ) {
 						dialog.get_input("paid_amount").parent().parent().parent().parent().hide();
-						// dialog.get_input("change").parent().parent().parent().parent().hide();
-						// set to nearest 5
-						// dialog.set_value("paid_amount", dialog.get_value("total_amount"));
-						// dialog.get_input("paid_amount").trigger("change");
 					} else if (!is_usd) {
 						dialog.get_input("paid_amount").parent().parent().parent().parent().show();
 						dialog.get_input("change").parent().parent().parent().parent().show();
-						// dialog.set_value("paid_amount", dialog.get_value("total_amount"));
-						// dialog.set_value("change", 0);
+						
 					}
 				}).trigger("change");
 
