@@ -9,7 +9,7 @@ from frappe.utils.csvutils import UnicodeWriter
 
 @frappe.whitelist()
 def get_sales_total(to_date):
-	query = """SELECT  sum(grand_total) as grand_total, CONCAT('G',' ', TRUNCATE(sum(base_total),2)) as base_total, posting_date 
+	query = """SELECT  sum(grand_total) as grand_total, CONCAT('G',' ', TRUNCATE(sum(base_total), 2)) as base_total , posting_date 
 				from 
 					`tabSales Invoice` 
 				where 
@@ -42,7 +42,7 @@ def get_expense(to_date):
 
 @frappe.whitelist()
 def get_currency_exchange(to_date):
-	query = """SELECT `item_name` ,sum(`rate`) as rate,CONCAT('G',' ',TRUNCATE(sum(`base_rate`),2)) as base_rate,`creation` 
+	query = """SELECT `item_name` ,sum(`rate`) as rate, CONCAT('G',' ',TRUNCATE(sum(`base_rate`),2)) as base_rate, `creation` 
 				from 
 					`tabSales Invoice Item` 
 				where 
@@ -99,15 +99,6 @@ def get_balance(to_date):
 							""" %(to_date, to_date, to_date, to_date)
 	return frappe.db.sql(query,as_dict=1)
 
-# @frappe.whitelist()
-# def create_csv(to_date):
-# 	sales_total = get_sales_total(to_date)
-# 	payment = get_payment(to_date)
-# 	expense = get_expense(to_date)
-# 	currency_exchange =get_currency_exchange(to_date)
-# 	balance = get_balance(to_date)
-# 	print sales_total, payment, expense, currency_exchange, balance 
-
 @frappe.whitelist()
 def create_csv(to_date):
 	if not frappe.has_permission("Attendance", "create"):
@@ -119,41 +110,61 @@ def create_csv(to_date):
 	w = add_header(w)
 
 	w = add_data(w, to_date)
-
+	
 	# write out response as a type csv
 	frappe.response['result'] = cstr(w.getvalue())
 	frappe.response['type'] = 'csv'
 	frappe.response['doctype'] = "EOD Report"
 
 def add_header(w):
-	# status = ", ".join((frappe.get_meta("Attendance").get_field("status").options or "").strip().split("\n"))
 	w.writerow(["End of day sales report"])
-	# w.writerow(["Please do not change the template headings"])
-	# # w.writerow(["Status should be one of these values: " + status])
-	# w.writerow(["If you are overwriting existing attendance records, 'ID' column mandatory"])
-	# w.writerow(["ID", "Employee", "Employee Name", "Date", "Status",
-	# 	 "Company", "Naming Series"])
 	return w
 
 def add_data(w, to_date):
-	sales_total = get_sales_total(to_date)
-	for sales_data in sales_total:
-		w.writerow("data")
 
-	# dates = get_dates(args)
-	# employees = get_active_employees()
-	# existing_attendance_records = get_existing_attendance_records(args)
-	# for date in dates:
-	# 	for employee in employees:
-	# 		existing_attendance = {}
-	# 		if existing_attendance_records \
-	# 			and tuple([date, employee.name]) in existing_attendance_records:
-	# 				existing_attendance = existing_attendance_records[tuple([date, employee.name])]
-	# 		row = [
-	# 			existing_attendance and existing_attendance.name or "",
-	# 			employee.name, employee.employee_name, date,
-	# 			existing_attendance and existing_attendance.status or "", employee.company,
-	# 			existing_attendance and existing_attendance.naming_series or get_naming_series(),
-	# 		]
-	# 		w.writerow(row)
+	sales_total = get_sales_total(to_date)
+	if sales_total:
+		w.writerow('\n')
+		w.writerow(['Sales Total'])
+		w.writerow(['', ' HTD', ' HTG'])
+		for h in sales_total:
+			row = (['', h['grand_total'], h['base_total']])
+			w.writerow(row)
+
+	payment = get_payment(to_date)
+	if payment:
+		w.writerow('\n')
+		w.writerow(['Payment to Accounts'])
+		w.writerow(['', 'Transaction Name', ' HTD', ' HTG', 'Mode of Payment'])
+		for i in payment:
+			row  = ['' , i['transction'], i['HTD'], i['HTG'], i['payment']]
+			print row
+			w.writerow(row)
+
+	expense = get_expense(to_date)
+	if expense:
+		w.writerow('\n')
+		w.writerow(['Expenses'])
+		w.writerow(['', 'Expense Reason', ' HTD', ' HTG'])
+		for j in expense:
+			row = ['', j['expense_reason'], j['amount'], j['amount_htg']]
+			w.writerow(row)
+
+	currency_exchange =get_currency_exchange(to_date)
+	if currency_exchange:
+		w.writerow('\n')
+		w.writerow(['Currency Exchange'])
+		w.writerow(['', ' HTD', ' HTG'])
+		for k in currency_exchange:
+			row = ['', k['rate'], k['base_rate']]
+			w.writerow(row)
+
+	balance = get_balance(to_date)
+	if balance:
+		w.writerow('\n')
+		w.writerow(['Balance'])
+		w.writerow(['', 'Deposit HTD', 'Deposit HTG'])
+		for l in balance:
+			row = ['', l['deposit_htd'], l['deposit_htg']]
+			w.writerow(row)
 	return w
