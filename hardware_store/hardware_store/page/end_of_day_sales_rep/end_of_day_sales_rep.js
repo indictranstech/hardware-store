@@ -81,7 +81,7 @@ erpnext.EodReport = Class.extend({
 
 		this.elements.child_sales_total = $('<div class="search-area col-sm-7" style="width:50%;">\
 			</div>').appendTo($(wrapper).find(".eod-wrapper").find(".pos-item-toolbar").find(".child-table-sales"))
-		this.elements.child_payment = $('<div class="search-area col-sm-7" style="width:60%;">\
+		this.elements.child_payment = $('<div class="search-area col-sm-7" style="width:70%;">\
 			</div>').appendTo($(wrapper).find(".eod-wrapper").find(".pos-item-toolbar").find(".child-table-payment"))
 		this.elements.child_expenses = $('<div class="search-area col-sm-7" style="width:50%;">\
 			</div>').appendTo($(wrapper).find(".eod-wrapper").find(".pos-item-toolbar").find(".child-table-expenses"))
@@ -232,28 +232,28 @@ erpnext.EodReport = Class.extend({
 			}
 		});
 	},
-	get_data_export: function(btn) {
-		var me = this;
-		frappe.call({
-			method: "hardware_store.hardware_store.page.end_of_day_sales_rep.end_of_day_sales_rep.create_csv",
-			args: {
-				to_date: this.options.to_date
-			},
-			btn: btn,
-			callback: function(r) {
-				if(!r.exc) {
-					// if(r.message){
-					// 	me.elements.child_balance.show();
-					// 	me.elements.child_balance.html(frappe.render_template("balance", {"data":r.message}))	
+	// get_data_export: function(btn) {
+	// 	var me = this;
+	// 	frappe.call({
+	// 		method: "hardware_store.hardware_store.page.end_of_day_sales_rep.end_of_day_sales_rep.create_csv",
+	// 		args: {
+	// 			to_date: this.options.to_date
+	// 		},
+	// 		btn: btn,
+	// 		callback: function(r) {
+	// 			if(!r.exc) {
+	// 				// if(r.message){
+	// 				// 	me.elements.child_balance.show();
+	// 				// 	me.elements.child_balance.html(frappe.render_template("balance", {"data":r.message}))	
 			
-					// }
-					// else {
-					// 	me.elements.child_balance.hide();
-					// }
-				}
-			}
-		});
-	},
+	// 				// }
+	// 				// else {
+	// 				// 	me.elements.child_balance.hide();
+	// 				// }
+	// 			}
+	// 		}
+	// 	});
+	// },
 	get_data_export:function() {
 		window.location.href = repl(frappe.request.url +
 			'?cmd=%(cmd)s&to_date=%(to_date)s', {

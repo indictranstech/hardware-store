@@ -416,7 +416,6 @@ erpnext.pos.PointOfSale = Class.extend({
 					method: 'hardware_store.customization.rudy_purchase_order.get_expense_resons',
 					args: {},
 					callback: function(r) {
-						// if(r.message){
 						var d = new frappe.ui.Dialog({
 							title: __("Add New Expense Entry"),
 							fields: [
@@ -435,12 +434,9 @@ erpnext.pos.PointOfSale = Class.extend({
 						if(r.message){
 							$(d.body).find("[data-fieldname='expense_entry']").html(frappe.render_template("expense_template", {"data":r.message}))
 						}
-						
-
 						$(d.body).find("button[data-fieldname='make_expense_entry']").on("click", function(){
 							me.make_expense_entries(d);
 						})
-						// }	
 					}
 				});
 			});
@@ -470,8 +466,10 @@ erpnext.pos.PointOfSale = Class.extend({
 							]
 						});
 						d.show();
-
 						$(d.body).find("[data-fieldname='expense_entry']").html(frappe.render_template("expense_template", {"data":r.message}))
+						$(d.body).find("button[data-fieldname='make_expense_entry']").on("click", function(){
+							me.make_expense_entries(d);
+						})
 					}	
 				}
 			});
@@ -496,9 +494,7 @@ erpnext.pos.PointOfSale = Class.extend({
 				callback: function(r) {
 					if(r.message){
 						d.hide();
-						// cur_dialog.refresh();
 						me.re_render_popup();
-						// me.make_expense_entry(d, r);
 					}
 				}
 			});
@@ -698,7 +694,7 @@ erpnext.pos.PointOfSale = Class.extend({
 			$(frappe.render_template("pos_bill_item", {
 				uom: d.uom,
 				item_code: d.item_code,
-				uoms: d.uoms.split(","),
+				uoms: JSON.parse(d.uoms? d.uoms: "[]"),
 				item_name: (d.item_name===d.item_code || !d.item_name) ? "" : ("<br>" + d.item_name),
 				qty: d.qty_in_uom,
 				actual_qty: d.actual_qty,
