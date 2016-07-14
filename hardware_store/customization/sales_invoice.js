@@ -1,4 +1,5 @@
 frappe.ui.form.on("Sales Invoice Item","qty",function(doc, cdt, cdn){
+	console.log("in Qty")
 	cur_doc = cur_frm.doc
 	customer_group = cur_doc.customer_group
 	var item = locals[cdt][cdn];
@@ -85,6 +86,7 @@ frappe.ui.form.on("Sales Invoice Item", {
 
 	qty_in_uom: function(doc, cdt, cdn) {
 		custom_conversion_factor(doc, cdt, cdn)
+		cur_frm.script_manager.trigger("qty", cdt, cdn);
 		cur_frm.refresh_fields()
 	},
 
