@@ -24,6 +24,8 @@ def get_payment(to_date):
 				 WHERE 
 				 		posting_date= '%s' 
 				 	and
+				 		outstanding_amount <= 0
+				 	and
 				 		docstatus =1
 				 GROUP BY 
 				 	name WITH ROLLUP""" %(to_date)

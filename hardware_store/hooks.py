@@ -80,6 +80,12 @@ app_include_css = "/assets/css/hardware_rudy_store.css"
 # 		"on_trash": "method"
 #	}
 # }
+doc_events = {
+	"Sales Invoice": {
+		"before_insert": "hardware_store.customization.sales_invoice.custom_for_pos"
+	}
+}
+
 
 # Scheduled Tasks
 # ---------------
