@@ -25,6 +25,19 @@ erpnext.pos.PointOfSale = Class.extend({
 			frappe.model.set_value(me.frm.doctype, me.frm.docname,
 				"additional_discount_percentage", flt(this.value));
 		});
+		// data = "<div class='btn-group actions-btn-group'><input type='button' name='usrname' value='usrname' class='btn btn-default btn-sm usrname'></div>" 
+		// data = "<div class='btn-group actions-btn-group'></div>" 
+		// user_btn = cur_frm.add_custom_button(__("Create from Quotation"),function() {
+		// 	alert("");
+
+		// });
+		// // data1 = $(user_btn).appendTo(data)
+		// abc = $(data).appendTo($('.container').find('.row').find('.col-md-5.col-sm-4.col-xs-6.page-actions'));
+		// $(user_btn).appendTo(abc)
+
+
+
+
 
 		if(cur_frm.doc.__islocal){
 			$("body").keydown(function(e){
@@ -410,7 +423,15 @@ erpnext.pos.PointOfSale = Class.extend({
 
 	make_expense_entry: function(){
 		var me = this;
-		if (this.frm.doctype == 'Sales Invoice'){	
+		
+
+		if (this.frm.doctype == 'Sales Invoice'){
+			this.wrapper.find('usrname').on('click', function(){
+				alert("kuch kam kare laye ravindra")
+			})
+			// this.frm.page.find('.usrname').on('click', function(){
+			// 	alert("something");
+			// })	
 			this.frm.page.set_secondary_action(__("Expense Entry"), function() {
 				frappe.call({
 					method: 'hardware_store.customization.rudy_purchase_order.get_expense_resons',
@@ -1017,15 +1038,32 @@ erpnext.pos.PointOfSale = Class.extend({
 			}
 			me.frm.set_value("mode_of_payment", values.mode_of_payment);
 
-			var paid_amount = flt((flt(values.paid_amount) - flt(values.change)), precision("paid_amount"));
-			me.frm.set_value("paid_amount", paid_amount);
+			var for_credit_account = values.mode_of_payment === __("Credit to account");
+			if (!for_credit_account ){
+			//custom added by for credit to account payment 
+		
+				var paid_amount = flt((flt(values.paid_amount) - flt(values.change)), precision("paid_amount"));
+				
+				me.frm.set_value("paid_amount", paid_amount);
 
-			// specifying writeoff amount here itself, so as to avoid recursion issue
-			me.frm.set_value("write_off_amount", me.frm.doc.grand_total - paid_amount);
-			me.frm.set_value("outstanding_amount", 0);
+				// specifying writeoff amount here itself, so as to avoid recursion issue
+				me.frm.set_value("write_off_amount", me.frm.doc.grand_total - paid_amount);
+				me.frm.set_value("outstanding_amount", 0);
+			//custom code by arpit
+			}else{
+		
+				me.frm.set_value("is_pos", 0);
+				me.frm.set_value("paid_amount", 0);
 
+				// specifying writeoff amount here itself, so as to avoid recursion issue
+				me.frm.set_value("write_off_amount", 0);
+				me.frm.set_value("outstanding_amount", paid_amount);
+
+			}
+			
 			me.frm.savesubmit(this);
 			dialog.hide();
+			me.refresh();
 		})
 
 	},

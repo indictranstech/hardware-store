@@ -41,7 +41,7 @@ function get_rate_from_item (item, customer_group) {
 	 		method : "hardware_store.customization.customization.default_customer",
 	 		callback:function(r) {
 	 			if(r.message){
-	 				console.log(JSON.stringify(r.message))
+	 				// console.log(JSON.stringify(r.message))
 	 				cur_frm.set_value("customer",r.message[0]['name'])
 	 			}
 	 		}
