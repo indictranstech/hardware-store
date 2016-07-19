@@ -15,6 +15,7 @@ erpnext.EodReport = Class.extend({
 		setTimeout(function() {
 			me.setup(wrapper);
 			me.get_data();
+			me.get_todays_sales();
 			me.get_data_payment();
 			me.get_data_expense();
 			me.get_data_currency();
@@ -30,6 +31,7 @@ erpnext.EodReport = Class.extend({
 			refresh_btn: wrapper.page.set_primary_action(__("Refresh"),
 				function() { 
 							me.get_data();
+							me.get_todays_sales();
 							me.get_data_payment();
 							me.get_data_expense();
 							me.get_data_currency();
@@ -53,8 +55,14 @@ erpnext.EodReport = Class.extend({
                 </div>\
              </div>\
               <div class="row pos-item-toolbar">\
+                <div class="todays_sales col-sm-12 ">\
+                	<div style="font-size: 21px;">Todays Sales</div>\
+                	<div class="child-table-todays-sales"></div>\
+                </div>\
+             </div>\
+              <div class="row pos-item-toolbar">\
                 <div class="payment_to_accounts col-sm-12 ">\
-                	<div style="font-size: 21px;">Payment to Accounts</div>\
+                	<div style="font-size: 21px;">Payments :- Credit to Accounts</div>\
                 	<div class="child-table-payment"></div>\
                 </div>\
              </div>\
@@ -79,9 +87,11 @@ erpnext.EodReport = Class.extend({
 			</div>')
 			.insertAfter(this.elements.layout);
 
-		this.elements.child_sales_total = $('<div class="search-area col-sm-7" style="width:50%;">\
+		this.elements.child_sales_total = $('<div class="search-area col-sm-6">\
 			</div>').appendTo($(wrapper).find(".eod-wrapper").find(".pos-item-toolbar").find(".child-table-sales"))
-		this.elements.child_payment = $('<div class="search-area col-sm-7" style="width:70%;">\
+		this.elements.child_todays_sales = $('<div class="search-area col-sm-8">\
+			</div>').appendTo($(wrapper).find(".eod-wrapper").find(".pos-item-toolbar").find(".child-table-todays-sales"))
+		this.elements.child_payment = $('<div class="search-area col-sm-8">\
 			</div>').appendTo($(wrapper).find(".eod-wrapper").find(".pos-item-toolbar").find(".child-table-payment"))
 		this.elements.child_expenses = $('<div class="search-area col-sm-7" style="width:50%;">\
 			</div>').appendTo($(wrapper).find(".eod-wrapper").find(".pos-item-toolbar").find(".child-table-expenses"))
@@ -100,17 +110,19 @@ erpnext.EodReport = Class.extend({
 			me.elements[k].val(frappe.datetime.str_to_user(v));
 			me.elements[k].on("change", function() {
 				me.options[k] = frappe.datetime.user_to_str($(this).val());
-				me.get_data();
+				me.get_data(this);
+				me.get_todays_sales(this);
 				me.get_data_payment(this);
-				me.get_data_expense();
-				me.get_data_currency();
-				me.get_data_balance();
+				me.get_data_expense(this);
+				me.get_data_currency(this);
+				me.get_data_balance(this);
 			});
 		});
 
 		// bind refresh
 		this.elements.refresh_btn.on("click", function() {
 			me.get_data(this);
+			me.get_todays_sales(this);
 			me.get_data_payment(this);
 			me.get_data_expense(this);
 			me.get_data_currency(this);
@@ -133,13 +145,34 @@ erpnext.EodReport = Class.extend({
 			btn: btn,
 			callback: function(r) {
 				if(!r.exc) {
-					if(r.message && r.message[0].posting_date){
+					if(r.message){
 						me.elements.child_sales_total.show();
 						me.elements.child_sales_total.html(frappe.render_template("sales_total", {"data":r.message}))	
 					} 
 					else {
 					
 						me.elements.child_sales_total.hide();
+					}
+				}
+			}
+		});
+	},
+	get_todays_sales: function(btn) {
+		var me = this;
+		frappe.call({
+			method: "hardware_store.hardware_store.page.end_of_day_sales_rep.end_of_day_sales_rep.get_todays_sales",
+			args: {
+				to_date: this.options.to_date
+			},
+			btn: btn,
+			callback: function(r) {
+				if(!r.exc) {
+					if(r.message){
+						me.elements.child_todays_sales.show();
+						me.elements.child_todays_sales.html(frappe.render_template("todays_sales", {"data":r.message}))	
+					}
+					else {
+						me.elements.child_todays_sales.hide();
 					}
 				}
 			}

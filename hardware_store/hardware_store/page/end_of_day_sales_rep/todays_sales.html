@@ -1,9 +1,10 @@
 <div>
-	<table class="table table-bordered table-hover currency-table2">
+	<table class="table table-bordered table-hover currency-table5">
 		<tr style="background-color: cadetblue;">
 			<th>Transaction</th>
 			<th>Total HTG</th>
 			<th>Total HTD</th>
+			<th>Mode of Payment</th>
 			<th>Comment</th>
 		</tr>
 		{% for(var i=0, l=data.length; i < l; i++) { %}
@@ -16,6 +17,9 @@
 			</td>
 			<td style="width: 120px; padding-bottom:3px;padding-left:3px;padding-right:3px; line-height: 1; text-align: right;">
 				{{ format_currency(data[i].HTD) }}
+			</td>
+			<td style="width: 120px; padding-bottom:3px;padding-left:3px;padding-right:3px; line-height: 1;">
+				{{ data[i].payment }}
 			</td>
 			<td style="width: 80px; padding-bottom:3px;padding-left:3px;padding-right:3px; line-height: 1;">
 			</td>
