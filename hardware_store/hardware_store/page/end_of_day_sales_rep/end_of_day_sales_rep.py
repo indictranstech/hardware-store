@@ -9,23 +9,40 @@ from frappe.utils.csvutils import UnicodeWriter
 
 @frappe.whitelist()
 def get_sales_total(to_date):
-	query = """SELECT  sum(grand_total) as grand_total, CONCAT('G',' ', TRUNCATE(sum(base_total), 2)) as base_total , posting_date 
+	query = """SELECT ifnull(mode_of_payment, 'Total') as mode_pay, sum(grand_total) as grand_total, CONCAT('G',' ', TRUNCATE(sum(base_total), 2)) as base_total 
 				from 
 					`tabSales Invoice` 
 				where 
-						posting_date = '%s' 
-					and 
-						docstatus = 1""" %(to_date)
+						date(creation) = '%s' 
+				 	and  
+				 		docstatus = 1 
+				 GROUP by  
+				 	mode_of_payment WITH  ROLLUP;""" %(to_date)
+	return frappe.db.sql(query,as_dict=1)
+
+@frappe.whitelist()
+def get_todays_sales(to_date):
+	query = """ SELECT IFNULL(name,"Total") as transction, sum(grand_total) as HTD, CONCAT('G',' ', TRUNCATE(sum(base_total),2)) as HTG , IFNULL(mode_of_payment,'') as payment FROM `tabSales Invoice`
+				 WHERE 
+				 		date(creation)= '%s' 
+				 	and
+				 		not mode_of_payment = 'Credit to account'
+				 	and
+				 		docstatus =1
+				 GROUP BY 
+				 	name WITH ROLLUP""" %(to_date)
 	return frappe.db.sql(query,as_dict=1)
 
 @frappe.whitelist()
 def get_payment(to_date):
 	query = """SELECT COALESCE(name, 'TOTAL') AS transction, sum(grand_total) as HTD, CONCAT('G',' ', TRUNCATE(sum(base_total),2)) as HTG , COALESCE(mode_of_payment,"") as payment FROM `tabSales Invoice`
 				 WHERE 
-				 		posting_date= '%s' 
+				 		date(creation) = '%s' 
 				 	and
 				 		outstanding_amount <= 0
 				 	and
+						mode_of_payment = 'Credit to account'
+					and
 				 		docstatus =1
 				 GROUP BY 
 				 	name WITH ROLLUP""" %(to_date)
@@ -70,7 +87,7 @@ def get_balance(to_date):
 						FROM 
 							`tabSales Invoice` 
 						where 
-								posting_date = '%s' 
+								date(creation) = '%s' 
 							and 
 								docstatus = 1) as sales ,
 				 (
@@ -78,7 +95,7 @@ def get_balance(to_date):
 						FROM 
 							`tabSales Invoice`
 						WHERE 	
-							 	posting_date = '%s'
+							 	date(creation) = '%s'
 						) as pay ,
 				(
 					SELECT  ifnull(SUM(expense_amount),0.0) as amount, ifnull(SUM(expense_amount *5),0.0) as amount_htg
@@ -128,19 +145,27 @@ def add_data(w, to_date):
 	if sales_total:
 		w.writerow('\n')
 		w.writerow(['Sales Total'])
-		w.writerow(['', ' HTD', ' HTG'])
+		w.writerow(['', 'Mode Of Payment','Total HTD', 'Total HTG'])
 		for h in sales_total:
-			row = (['', h['grand_total'], h['base_total']])
+			row = (['', h['mode_pay'], h['grand_total'], h['base_total']])
+			w.writerow(row)
+
+	todays_sales = get_todays_sales(to_date)
+	if todays_sales:
+		w.writerow('\n')
+		w.writerow(['Todays Sales'])
+		w.writerow(['', 'Transaction Name', ' HTD', ' HTG', 'Mode of Payment'])
+		for i in todays_sales:
+			row  = ['' , i['transction'], i['HTD'], i['HTG'], i['payment']]
 			w.writerow(row)
 
 	payment = get_payment(to_date)
 	if payment:
 		w.writerow('\n')
-		w.writerow(['Payment to Accounts'])
-		w.writerow(['', 'Transaction Name', ' HTD', ' HTG', 'Mode of Payment'])
+		w.writerow(['Payments :- Credit to Accounts'])
+		w.writerow(['', 'Transaction Name', ' HTD', ' HTG'])
 		for i in payment:
-			row  = ['' , i['transction'], i['HTD'], i['HTG'], i['payment']]
-			print row
+			row  = ['' , i['transction'], i['HTD'], i['HTG']]
 			w.writerow(row)
 
 	expense = get_expense(to_date)

@@ -11,7 +11,7 @@ erpnext.pos.PointOfSale = Class.extend({
 
 		this.check_transaction_type();
 		this.make();
-		this.make_expense_entry();
+		// this.make_expense_entry();
 
 		var me = this;
 		$(this.frm.wrapper).on("refresh-fields", function() {
@@ -25,20 +25,7 @@ erpnext.pos.PointOfSale = Class.extend({
 			frappe.model.set_value(me.frm.doctype, me.frm.docname,
 				"additional_discount_percentage", flt(this.value));
 		});
-		// data = "<div class='btn-group actions-btn-group'><input type='button' name='usrname' value='usrname' class='btn btn-default btn-sm usrname'></div>" 
-		// data = "<div class='btn-group actions-btn-group'></div>" 
-		// user_btn = cur_frm.add_custom_button(__("Create from Quotation"),function() {
-		// 	alert("");
-
-		// });
-		// // data1 = $(user_btn).appendTo(data)
-		// abc = $(data).appendTo($('.container').find('.row').find('.col-md-5.col-sm-4.col-xs-6.page-actions'));
-		// $(user_btn).appendTo(abc)
-
-
-
-
-
+		
 		if(cur_frm.doc.__islocal){
 			$("body").keydown(function(e){
 				if(e.keyCode == 81 && e.ctrlKey){
@@ -120,6 +107,7 @@ erpnext.pos.PointOfSale = Class.extend({
 		this.make_si_from_quotation();
 		// this.make_amount_given_by_customer();
 		this.make_currency_convertor();
+		this.make_expense_entry();
 		// this.make_change_return();
 	},
 	make_party: function() {
@@ -426,13 +414,12 @@ erpnext.pos.PointOfSale = Class.extend({
 		
 
 		if (this.frm.doctype == 'Sales Invoice'){
-			this.wrapper.find('usrname').on('click', function(){
-				alert("kuch kam kare laye ravindra")
-			})
-			// this.frm.page.find('.usrname').on('click', function(){
-			// 	alert("something");
-			// })	
-			this.frm.page.set_secondary_action(__("Expense Entry"), function() {
+			create_expense_btn = "<div class='btn-group actions-btn-group'>\
+					<input type='button' name='Expense Entry' value='Expense Entry' class='btn btn-default btn-sm expense-entry'>\
+				</div>" 
+			this.expense_btn = $(create_expense_btn).appendTo($('.container').find('.row').find('.col-md-5.col-sm-4.col-xs-6.page-actions'));
+			this.expense_btn .find('.expense-entry').on('click', function(){
+				
 				frappe.call({
 					method: 'hardware_store.customization.rudy_purchase_order.get_expense_resons',
 					args: {},
@@ -460,7 +447,9 @@ erpnext.pos.PointOfSale = Class.extend({
 						})
 					}
 				});
-			});
+
+
+			})
 		}
 	},
 
@@ -662,7 +651,7 @@ erpnext.pos.PointOfSale = Class.extend({
 
 		this.refresh_item_list();
 		this.refresh_fields();
-		this.make_expense_entry();
+		// this.make_expense_entry();
 
 		// if form is local then only run all these functions
 		if (this.frm.doc.docstatus===0) {
@@ -938,6 +927,10 @@ erpnext.pos.PointOfSale = Class.extend({
 								}
 
 								dialog.set_value("change", rounded_change);
+
+								me.frm.set_value("cash_paid_amount_htd", values.paid_amount);
+								me.frm.set_value("change_amount_returned_htd", rounded_change);
+
 								if (usd_exchange_rate && htd_exchange_rate){
 									dialog.set_value("change_to_htg", rounded_change * htd_exchange_rate);
 								}
@@ -1002,6 +995,8 @@ erpnext.pos.PointOfSale = Class.extend({
 					} else if (!is_cash) {
 						dialog.set_value("paid_amount", dialog.get_value("total_amount"));
 						dialog.set_value("change", 0);
+						me.frm.set_value("cash_paid_amount_htd", 0);
+						me.frm.set_value("change_amount_returned_htd", 0);
 					}
 					
 					

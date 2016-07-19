@@ -103,3 +103,9 @@ custom_conversion_factor = function(doc, cdt, cdn) {
 		item.qty = flt(item.qty_in_uom * item.conversion_factor, precision("qty_in_uom", item));
 	}
 }
+cur_frm.fields_dict['mode_of_payment'].get_query = function(){ 
+	var t_list = ['Cash','Credit to account', 'Bank Deposit', 'Cheque']; return {
+		filters: [
+			['Mode of Payment', 'name', 'in', t_list]
+		]
+	}}
