@@ -1,5 +1,4 @@
 frappe.ui.form.on("Sales Invoice Item","qty",function(doc, cdt, cdn){
-	console.log("in Qty")
 	cur_doc = cur_frm.doc
 	customer_group = cur_doc.customer_group
 	var item = locals[cdt][cdn];
@@ -20,6 +19,7 @@ function get_rate_from_item (item, customer_group) {
 	args['item_name'] = item.item_code || item.item_name
 	args['qty'] = item.qty
 	args['customer_group'] = customer_group
+	args['item_uom'] = item.uom || " "
 	return frappe.call({
 		method : "hardware_store.customization.quotation.rate",
 		args : { args },
@@ -36,12 +36,10 @@ function get_rate_from_item (item, customer_group) {
  	if (cint(frappe.defaults.get_user_defaults("fs_pos_view"))===1)
 						erpnext.pos.toggle(cur_frm, true);
 	if(cur_frm.doc.__islocal){
-		// cur_frm.set_value("customer","Rudy")
 		frappe.call({
 	 		method : "hardware_store.customization.customization.default_customer",
 	 		callback:function(r) {
 	 			if(r.message){
-	 				// console.log(JSON.stringify(r.message))
 	 				cur_frm.set_value("customer",r.message[0]['name'])
 	 			}
 	 		}
@@ -103,6 +101,7 @@ custom_conversion_factor = function(doc, cdt, cdn) {
 		item.qty = flt(item.qty_in_uom * item.conversion_factor, precision("qty_in_uom", item));
 	}
 }
+
 cur_frm.fields_dict['mode_of_payment'].get_query = function(){ 
 	var t_list = ['Cash','Credit to account', 'Bank Deposit', 'Cheque']; return {
 		filters: [

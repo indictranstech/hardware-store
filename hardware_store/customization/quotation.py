@@ -10,19 +10,20 @@ def rate(args):
 	arg = json.loads(args)
 	item_name = arg['item_name']
 	item_qty = arg['qty']
+	item_conversation = arg['item_uom']
 		
 	# Price_list = ''
 	if arg['customer_group'] == "Credit Customers":
 		Price_list = "tabCredit Customers"
-		quantity = quantity_range(Price_list, item_name)
+		quantity = quantity_range(Price_list, item_name, item_conversation)
 		required_qty =sort_quantity(item_qty, quantity)
 	elif arg['customer_group'] == "Resellers":
 		Price_list = "tabReseller Customers"
-		quantity = quantity_range(Price_list, item_name)
+		quantity = quantity_range(Price_list, item_name, item_conversation)
 		required_qty = sort_quantity(item_qty, quantity)
 	else:
 		Price_list = "tabRegular Customers"
-		quantity = quantity_range(Price_list, item_name)
+		quantity = quantity_range(Price_list, item_name, item_conversation)
 		required_qty =sort_quantity(item_qty, quantity)
 	
 	rate = frappe.db.sql("""SELECT chld_tbl.rate as rate 
@@ -39,19 +40,11 @@ def rate(args):
 	return rate
 
 
-def quantity_range(Price_list, item_name):
+def quantity_range(Price_list, item_name, item_conversation):
 	item_quanties = []
-	quantity = frappe.db.sql("""SELECT chld_tbl.rate as rate, chld_tbl.minimum_qty as minimum_qty 
-					from 
-						`tabItem` as item, `%s` as chld_tbl 
-					where 
-							item.name = chld_tbl.parent
-						and 
-							item.name = '%s'
-						and 
-							NOT chld_tbl.minimum_qty = 0
-						""" %(Price_list, item_name),as_dict=1)
-	
+	quantity = frappe.db.sql("""SELECT rate, minimum_qty, uom_quantity from `%s` 
+						where  parent = '%s' and  NOT minimum_qty = 0 and  uom_quantity='%s'
+						""" %(Price_list, item_name, item_conversation),as_dict=1)
 	return quantity
  
 def sort_quantity(item_qty, quantity):

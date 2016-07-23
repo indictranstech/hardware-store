@@ -355,7 +355,7 @@ erpnext.pos.PointOfSale = Class.extend({
 			if(dialog.get_input('convert_to').val()) {
 				$.each(me.frm.doc["items"] || [], function(i, d) {
 					if (d.item_name == "Money Convertor") {
-						if (d.qty_in_uom == 1) {
+						if (d.qty == 1) {
 							frappe.model.clear_doc(d.doctype, d.name);
 							me.refresh_grid();
 						}
@@ -378,12 +378,12 @@ erpnext.pos.PointOfSale = Class.extend({
 		var child = frappe.model.add_child(me.frm.doc, this.frm.doctype + " Item", "items");
 		child.item_name = "Money Convertor"
 		child.description ="converted money"
-		child.qty_in_uom = 1;
+		child.qty = 1;
 		child.rate = dialog.get_input('convert_to').val();
 
 
 		frappe.after_ajax(function() {
-			me.frm.script_manager.trigger("qty_in_uom", child.doctype, child.name);
+			me.frm.script_manager.trigger("qty", child.doctype, child.name);
 		})
 	},
 
@@ -707,6 +707,7 @@ erpnext.pos.PointOfSale = Class.extend({
 				uoms: JSON.parse(d.uoms? d.uoms: "[]"),
 				item_name: (d.item_name===d.item_code || !d.item_name) ? "" : ("<br>" + d.item_name),
 				qty: d.qty_in_uom,
+				qty_item_uom: d.qty,
 				actual_qty: d.actual_qty,
 				projected_qty: d.projected_qty,
 				rate: format_currency(d.rate, me.frm.doc.currency),
@@ -790,6 +791,7 @@ erpnext.pos.PointOfSale = Class.extend({
 			.toggle(this.frm.doc.docstatus===0);
 
 		$(this.wrapper).find('input, button').prop("disabled", !(this.frm.doc.docstatus===0));
+		$(this.wrapper).find(".uom-conversion").prop("disabled",!(this.frm.doc.docstatus===0))
 		$(this.wrapper).find(".quotation-area").find('input, button').prop("disabled", false, !(this.frm.doc.docstatus===0));
 
 		// this.wrapper.find(".pos-item-area").toggleClass("hide", me.frm.doc.docstatus!==0);
