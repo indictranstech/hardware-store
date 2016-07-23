@@ -4,7 +4,7 @@
   "docstatus": 0, 
   "doctype": "Mode of Payment", 
   "mode_of_payment": "Cheque", 
-  "modified": "2016-07-10 09:57:05.927152", 
+  "modified": "2016-07-23 18:46:14.087595", 
   "name": "Cheque"
  }, 
  {
@@ -12,7 +12,7 @@
   "docstatus": 0, 
   "doctype": "Mode of Payment", 
   "mode_of_payment": "Cash", 
-  "modified": "2016-07-10 09:57:05.944392", 
+  "modified": "2016-07-23 18:46:20.483078", 
   "name": "Cash"
  }, 
  {
@@ -20,7 +20,7 @@
   "docstatus": 0, 
   "doctype": "Mode of Payment", 
   "mode_of_payment": "Credit Card", 
-  "modified": "2016-07-10 09:57:05.948778", 
+  "modified": "2016-07-23 18:46:17.577750", 
   "name": "Credit Card"
  }, 
  {
@@ -28,7 +28,7 @@
   "docstatus": 0, 
   "doctype": "Mode of Payment", 
   "mode_of_payment": "Wire Transfer", 
-  "modified": "2016-07-10 09:57:05.953013", 
+  "modified": "2016-07-23 18:46:23.882523", 
   "name": "Wire Transfer"
  }, 
  {
@@ -36,20 +36,15 @@
   "docstatus": 0, 
   "doctype": "Mode of Payment", 
   "mode_of_payment": "Bank Draft", 
-  "modified": "2016-07-10 09:57:05.956294", 
+  "modified": "2016-07-23 18:46:11.042656", 
   "name": "Bank Draft"
  }, 
  {
-  "accounts": [
-   {
-    "company": "Rudy Store", 
-    "default_account": "Cash - RS"
-   }
-  ], 
+  "accounts": [], 
   "docstatus": 0, 
   "doctype": "Mode of Payment", 
   "mode_of_payment": "Credit to account", 
-  "modified": "2016-07-14 19:06:23.112514", 
+  "modified": "2016-07-23 18:46:05.018161", 
   "name": "Credit to account"
  }, 
  {
@@ -57,7 +52,7 @@
   "docstatus": 0, 
   "doctype": "Mode of Payment", 
   "mode_of_payment": "Bank Deposit", 
-  "modified": "2016-07-10 10:46:26.845123", 
+  "modified": "2016-07-23 18:46:07.957861", 
   "name": "Bank Deposit"
  }
 ]
