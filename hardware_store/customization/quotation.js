@@ -18,6 +18,7 @@ function get_rate_from_item (item, customer_group) {
 	args['item_name'] = item.item_code || item.item_name
 	args['qty'] = item.qty
 	args['customer_group'] = customer_group
+	args['item_uom'] = item.uom || " "
 	return frappe.call({
 		method : "hardware_store.customization.quotation.rate",
 		args : { args },
@@ -60,3 +61,57 @@ function get_rate_from_item (item, customer_group) {
 	 	})
  	}
  })
+
+frappe.ui.form.on("Quotation Item", {
+	item_code: function(doc, cdt, cdn) {
+		var item = frappe.get_doc(cdt, cdn);
+		return frappe.call({
+			method: "hardware_store.customization.item.get_item_uom",
+			args: {
+				item_code: item.item_code
+			},
+			callback(r) {
+				item.uoms = r.message;
+				cur_frm.refresh_fields();
+			}
+		})
+	},
+
+	uom: function(doc, cdt, cdn) {
+		var item = frappe.get_doc(cdt, cdn);
+		if(item.item_code && item.uom) {
+			return cur_frm.call({
+				method: "erpnext.stock.get_item_details.get_conversion_factor",
+				child: item,
+				args: {
+					item_code: item.item_code,
+					uom: item.uom
+				},
+				callback: function(r) {
+					if(!r.exc) {
+						custom_conversion_factor(cur_frm.doc, cdt, cdn);
+					}
+				}
+			});
+		}
+	},
+
+	qty_in_uom: function(doc, cdt, cdn) {
+		custom_conversion_factor(doc, cdt, cdn)
+		cur_frm.script_manager.trigger("qty", cdt, cdn);
+		cur_frm.refresh_fields()
+	},
+
+	conversion_factor: function(doc, cdt, cdn) {
+		custom_conversion_factor(doc, cdt, cdn)
+		cur_frm.refresh_fields()
+	},
+});
+
+custom_conversion_factor = function(doc, cdt, cdn) {
+	if(frappe.meta.get_docfield(cdt, "qty_in_uom", cdn)) {
+		var item = frappe.get_doc(cdt, cdn);
+		frappe.model.round_floats_in(item, ["qty_in_uom", "conversion_factor"]);
+		item.qty = flt(item.qty_in_uom * item.conversion_factor, precision("qty_in_uom", item));
+	}
+}

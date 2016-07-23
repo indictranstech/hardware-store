@@ -9,6 +9,7 @@
                 </div>
                 {% if(actual_qty != null) { %}
                 <div style="margin-top: 5px;" class="text-muted small text-right">
+                    <span title="{%= __("UOM Qty") %}">{%= qty_item_uom || 0 %} {%= __(" - ") %}<span>
                     <span title="{%= __("In Stock") %}">{%= actual_qty || 0 %}<span>
                     <span title="{%= __("Projected") %}">({%= projected_qty || 0 %})<span>
                 </div>
