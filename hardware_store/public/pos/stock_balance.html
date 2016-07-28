@@ -1,0 +1,22 @@
+<div>
+	<table class="table table-bordered table-hover currency-table">
+		<tr>
+			<th>Item Name</th>
+			<th>Remaning Qty in Nos</th>
+			<th>Remaning Qty in Pack</th>
+		</tr>
+		{% for(var i=0, l=data.length; i < l; i++) { %}
+		<tr name ="{{ data[i].item_code }}" style="line-height: 1; font-size: 14px; margin-bottom:0px;">
+			<td style="width: 100px; padding-bottom:3px;padding-left:3px;padding-right:3px; line-height: 1;">
+					{{ data[i].item }}
+			</td>
+			<td style="width: 150px; padding-bottom:3px;padding-left:3px;padding-right:3px; line-height: 1;">
+					{{ data[i].actual_qty }}
+			</td>
+			<td style="width: 80px; padding-bottom:3px;padding-left:3px;padding-right:3px; line-height: 1;">
+					{{ data[i].pack }}
+			</td>
+		</tr>
+		{% } %}
+		</table>
+</div>

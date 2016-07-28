@@ -31,7 +31,7 @@ function get_rate_from_item (item, customer_group) {
 	})
 }
 
- frappe.ui.form.on("Sales Invoice","onload",function(frm, doc, cdt, cdn){
+ frappe.ui.form.on("Sales Invoice","onload",function(doc, cdt, cdn){
  	var me = this;
  	if (cint(frappe.defaults.get_user_defaults("fs_pos_view"))===1)
 						erpnext.pos.toggle(cur_frm, true);
@@ -47,6 +47,8 @@ function get_rate_from_item (item, customer_group) {
  	}
 	
  })
+
+ // frappe.ui.form.on("Sales Invoice","")
 
 frappe.ui.form.on("Sales Invoice Item", {
 	item_code: function(doc, cdt, cdn) {

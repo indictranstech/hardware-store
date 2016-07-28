@@ -9,6 +9,7 @@
 		"public/pos/pos_tax_row.html",
 		"public/pos/pos_bill_item.html",
 		"public/pos/expense_template.html",
+		"public/pos/stock_balance.html",
 		"public/pos/currency_exchange_rate_template.html"
 	]
 }
