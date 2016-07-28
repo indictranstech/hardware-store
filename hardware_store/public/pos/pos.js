@@ -80,6 +80,12 @@ erpnext.pos.PointOfSale = Class.extend({
 			    }
 			})	
 		});
+
+		this.wrapper.find("input[data-fieldname='customer']").on("change click keyup focusout",function() {
+			me.make_item_list()
+		})
+
+		// me.wrapper.find("input[data-fieldname='customer']").val()
 	},
 	check_transaction_type: function() {
 		var me = this;
@@ -99,6 +105,7 @@ erpnext.pos.PointOfSale = Class.extend({
 			this.frm.doc.selling_price_list : this.frm.doc.buying_price_list);
 		this.price_list_field = (party == "Customer" ? "selling_price_list" : "buying_price_list");
 		this.sales_or_purchase = (party == "Customer" ? "Sales" : "Purchase");
+		// this.customer_group = this.frm.doc.customer_group
 	},
 	make: function() {
 		this.make_party();
@@ -108,6 +115,7 @@ erpnext.pos.PointOfSale = Class.extend({
 		// this.make_amount_given_by_customer();
 		this.make_currency_convertor();
 		this.make_expense_entry();
+		this.make_stock_balance_report()
 		// this.make_change_return();
 	},
 	make_party: function() {
@@ -241,14 +249,64 @@ erpnext.pos.PointOfSale = Class.extend({
 		if (this.frm.doctype == "Sales Invoice" && this.frm.doc.docstatus===0){
 			parent = this.wrapper.find(".currency-convertor")
 			convertor = cur_frm.add_custom_button(__("Convert Money"), function() {
-				if (me.wrapper.find("input[data-fieldname='customer']").val()){
-					me.dialog_currency_convertor()
-				}else {
-					msgprint(__("Please Select Customer first"))
-				}
+				me.convert_money_customer()
+				
 			});
 			$(parent).append($(convertor))
 		}			
+	},
+	convert_money_customer:function() {
+		var me = this;
+		frappe.call({
+	 		method : "hardware_store.customization.customization.convert_money_customer",
+	 		callback:function(r) {
+	 			if(r.message){
+	 				cur_frm.set_value("customer",r.message[0]['name'])
+	 				me.refresh();
+				if (me.wrapper.find("input[data-fieldname='customer']").val() == "Convert Money Customer"){
+					me.dialog_currency_convertor()
+				}
+	 			}
+	 		}
+	 	})
+	},
+
+	make_stock_balance_report: function() {
+		var me = this;
+		if (this.frm.doc.docstatus===0){
+			parent = this.wrapper.find(".report-item-area")
+			item_stock = cur_frm.add_custom_button(__("Stock"), function() {
+				if(me.frm.doc.items.length > 0){
+					// console.log(me.frm.doc.items)
+					me.dialog_stock_balance()
+				}else{
+					msgprint(__("Please Select Item first"))
+				}
+			});
+			$(parent).append($(item_stock))
+		}			
+	},
+
+	dialog_stock_balance: function () {
+		var me = this;
+		frappe.call({
+		method :"hardware_store.hardware_store.doctype.configuration.configuration.item_stock_balance",
+		args : {  "arg": me.frm.doc.items },
+		callback: function(r){
+				var d = new frappe.ui.Dialog({
+				width: 400,
+				title: 'Stock balance Of Item Present on Cart',
+				fields: [
+					{fieldtype: 'HTML',
+					fieldname: 'report' , label: __('Stock Balance')},
+				]
+				});
+				d.show();
+				if(r.message){
+						$(d.body).find("[data-fieldname='report']").html(frappe.render_template("stock_balance", {"data":r.message}))
+				}
+			}
+		})
 	},
 
 	dialog_currency_convertor: function  () {
@@ -523,13 +581,18 @@ erpnext.pos.PointOfSale = Class.extend({
 			return;
 		}
 
+		// original code link
+		// method: 'erpnext.accounts.doctype.sales_invoice.pos.get_items',
+
 		me.item_timeout = null;
 		frappe.call({
-			method: 'erpnext.accounts.doctype.sales_invoice.pos.get_items',
+			
+			method: 'hardware_store.customization.sales_invoice.get_items',
 			args: {
 				sales_or_purchase: this.sales_or_purchase,
 				price_list: this.price_list,
-				item: this.search.$input.val()
+				item: this.search.$input.val(),
+				customer_group: this.frm.doc.customer_group || "Regular Customers"
 			},
 			callback: function(r) {
 				var $wrap = me.wrapper.find(".item-list");
@@ -548,17 +611,26 @@ erpnext.pos.PointOfSale = Class.extend({
 							return;
 						}
 					}
-
+				
 					$.each(r.message, function(index, obj) {
 						$(frappe.render_template("pos_item", {
 							item_code: obj.name,
-							item_price: format_currency(obj.price_list_rate, obj.currency),
+							item_price: obj.price_list_rate,
 							item_name: obj.name===obj.item_name ? "" : obj.item_name,
 							item_image: obj.image ? "url('" + obj.image + "')" : null
 						})).tooltip().appendTo($wrap);
 					});
 				}
 
+				// $.each(r.message, function(index, obj) {
+				// 		$(frappe.render_template("pos_item", {
+				// 			item_code: obj.name,
+				// 			item_price: format_currency(obj.price_list_rate, obj.currency),
+				// 			item_name: obj.name===obj.item_name ? "" : obj.item_name,
+				// 			item_image: obj.image ? "url('" + obj.image + "')" : null
+				// 		})).tooltip().appendTo($wrap);
+				// 	});
+				// }
 				// if form is local then allow this function
 				$(me.wrapper).find("div.pos-item").on("click", function() {
 					if(me.frm.doc.docstatus==0) {
@@ -682,8 +754,8 @@ erpnext.pos.PointOfSale = Class.extend({
 
 	},
 	hide_quotation_area: function(){
-		if(cur_frm.doc.doctype == "quotation"){
-			this.wrapper.find(".quotation-area").toggleClass("hide", this.frm.doc.docstatus!==1);
+		if(cur_frm.doc.doctype == "Quotation" ){
+			this.wrapper.find(".quotation-area").find(".btn.btn-default").toggleClass("hide", this.frm.doc.__islocal ==1);
 		}
 			
 	},

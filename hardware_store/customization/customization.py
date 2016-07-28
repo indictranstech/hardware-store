@@ -83,3 +83,8 @@ def _make_customer(source_name, ignore_permissions=False):
 def default_customer():
 	query = """SELECT name from `tabCustomer` where name ='Cash Customer'"""
 	return frappe.db.sql(query,as_dict=True)
+
+@frappe.whitelist()
+def convert_money_customer():
+	query = """SELECT name from `tabCustomer` where name ='Convert Money Customer'"""
+	return frappe.db.sql(query,as_dict=True)
