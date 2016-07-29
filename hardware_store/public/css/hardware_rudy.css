@@ -1,0 +1,81 @@
+html {
+  min-height: 100%;
+}
+body {
+  height: 100%;
+  /* The html and body elements cannot have any padding or margin. */
+  margin: 0px;
+  padding: 0px !important;
+ /* color: #ffa00a !important;*/
+  background-color: rgba(119, 94, 255, 0.09) !important;
+}
+html,
+body {
+  overflow-x: hidden;
+  /* Prevent scroll on narrow devices */
+}
+.offcanvas-main-section-overlay {
+  display: none;
+  cursor: pointer;
+  opacity: 0.5;
+}
+.sidebar-padding {
+  padding: 12px 14px;
+}
+.offcanvas .sidebar .sidebar-menu > li > a,
+.offcanvas .sidebar .dropdown-menu > li > a {
+  padding: 12px 14px;
+  display: block;
+  whitespace: nowrap;
+  transition: 0.2s;
+  text-decoration: none !important;
+}
+.offcanvas .sidebar .dropdown-menu {
+  padding: 0px;
+  font-size: inherit;
+}
+.offcanvas .sidebar .dropdown-menu > li > a {
+  padding-left: 28px;
+}
+.offcanvas .sidebar .divider {
+  height: 1px;
+  overflow: hidden;
+  background-color: #EBEFF2;
+  width: 100%;
+  margin: 0px;
+}
+.offcanvas .sidebar .badge {
+  right: 15px !important;
+  top: 11px !important;
+}
+.offcanvas .sidebar .sidebar-menu > li > a:hover,
+.offcanvas .sidebar .dropdown-menu > li > a:hover,
+.offcanvas .sidebar .sidebar-menu > li > a:focus,
+.offcanvas .sidebar .dropdown-menu > li > a:focus,
+.offcanvas .sidebar .sidebar-menu > li > a:active,
+.offcanvas .sidebar .dropdown-menu > li > a:active {
+  background-color: #F0F4F7;
+}
+/*.page-head{
+  border-bottom: 1px solid #a24689; 
+  height: 70px;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 41px;
+  margin: auto;
+  background-color: #a24689 !important;
+  z-index: 101;
+}*/
+.navbar-default {
+    background-color: #a24689 !important;
+    border-color: #ebeff2; 
+}
+
+.navbar-default .navbar-nav > li > a {
+    color: #f7fafc !important;
+}
+/*
+.shaded-section {
+    background-color: #634b9d !important;
+}*/

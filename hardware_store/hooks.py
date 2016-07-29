@@ -13,6 +13,9 @@ app_license = "MIT"
 
 # Includes in <head>
 # ------------------
+app_include_js = "assets/js/hardware_store.min.js"
+app_include_css = "/assets/css/hardware_rudy_store.css"
+
 
 # include js, css files in header of desk.html
 # app_include_css = "/assets/hardware_store/css/hardware_store.css"
@@ -77,6 +80,12 @@ app_license = "MIT"
 # 		"on_trash": "method"
 #	}
 # }
+doc_events = {
+	"Sales Invoice": {
+		"before_insert": "hardware_store.customization.sales_invoice.custom_for_pos"
+	}
+}
+
 
 # Scheduled Tasks
 # ---------------
@@ -115,4 +124,4 @@ scheduler_events = {
 # 	"frappe.desk.doctype.event.event.get_events": "hardware_store.event.get_events"
 # }
 
-fixtures= ['Custom Script','Property Setter','Custom Field']
+fixtures= ['Custom Script','Property Setter','Custom Field','Currency','Customer Group','Role','Mode of Payment','Print Format']

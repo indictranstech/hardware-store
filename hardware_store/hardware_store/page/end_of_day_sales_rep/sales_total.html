@@ -1,0 +1,23 @@
+<div>
+	<table class="table table-bordered table-hover currency-table1">
+		<tr style="background-color: cadetblue;">
+			<th>Mode Of Payment</th>
+			<th>Total HTG</th>
+			<th>Total HTD</th>
+		</tr>
+		{% for(var i=0, l=data.length; i < l; i++) { %}
+		<tr style="line-height: 1; font-size: 14px; margin-bottom:0px;">
+			<td style="width: 120px; padding-bottom:3px;padding-left:3px;padding-right:3px; line-height: 1;">
+				{{ data[i].mode_pay }}
+
+			</td>
+			<td style="width: 120px; padding-bottom:3px;padding-left:3px;padding-right:3px; line-height: 1; text-align: right;">
+				{{ data[i].base_total }} 
+			</td>
+			<td style="width: 120px; padding-bottom:3px;padding-left:3px;padding-right:3px; line-height: 1; text-align: right;">
+				{{ format_currency(data[i].grand_total) }}
+			</td>
+		</tr>
+		{% } %}
+	</table>
+</div>

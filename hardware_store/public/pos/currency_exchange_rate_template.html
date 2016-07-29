@@ -1,0 +1,22 @@
+<div>
+	<table class="table table-bordered table-hover currency-table">
+		<tr>
+			<th>From Currency</th>
+			<th>To Currency</th>
+			<th>Exchange Rate</th>
+		</tr>
+		{% for(var i=0, l=data.length; i < l; i++) { %}
+		<tr name ="{{data[i].name}}" style="line-height: 1; font-size: 14px; margin-bottom:0px;">
+			<td style="width: 200px; padding-bottom:3px;padding-left:3px;padding-right:3px; line-height: 1;">
+				{{ data[i].from_currency }}
+			</td>
+			<td style="width: 80px; padding-bottom:3px;padding-left:3px;padding-right:3px; line-height: 1;">
+				{{ data[i].to_currency }}
+			</td>
+			<td style="width: 80px; padding-bottom:3px;padding-left:3px;padding-right:3px; line-height: 1;">
+				{{ data[i].exchange_rate }}
+			</td>
+		</tr>
+		{% } %}
+	</table>
+</div>

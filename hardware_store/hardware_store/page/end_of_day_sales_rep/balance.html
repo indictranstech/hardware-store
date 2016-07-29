@@ -1,0 +1,20 @@
+<div>
+	<table class="table table-bordered table-hover currency-table2">
+		<tr style="background-color: cadetblue;">
+			<th>Total HTG</th>
+			<th>Total HTD</th>
+			
+		</tr>
+		{% for(var i=0, l=data.length; i < l; i++) { %}
+		<tr style="line-height: 1; font-size: 14px; margin-bottom:0px;">
+			<td style="width: 80px; padding-bottom:3px;padding-left:3px;padding-right:3px; line-height: 1; text-align: right;">
+				{{ data[i].deposit_htg }}
+			</td>
+			<td style="width: 80px; padding-bottom:3px;padding-left:3px;padding-right:3px; line-height: 1; text-align: right;">
+				{{ format_currency(data[i].deposit_htd) }}
+			</td>
+			</td>
+		</tr>
+		{% } %}
+	</table>
+</div>

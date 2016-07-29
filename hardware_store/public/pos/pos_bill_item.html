@@ -1,0 +1,36 @@
+<div class="row pos-bill-row pos-bill-item" data-item-code="{%= item_code %}">
+    <div class="col-xs-3"><h6>{%= item_code || "" %}{%= item_name || "" %}</h6></div>
+    <div class="col-xs-3">
+        <div class="row pos-qty-row">
+            <div class="col-xs-2 text-center pos-qty-btn" data-action="decrease-qty"><i class="icon-minus-sign text-muted"></i></div>
+            <div class="col-xs-8">
+				<div>
+                    <input type="text" value="{%= qty %}" class="form-control input-sm pos-item-qty text-right">
+                </div>
+                {% if(actual_qty != null) { %}
+                <div style="margin-top: 5px;" class="text-muted small text-right">
+                    <span title="{%= __("UOM Qty") %}">{%= qty_item_uom || 0 %} {%= __(" - ") %}<span>
+                    <span title="{%= __("In Stock") %}">{%= actual_qty || 0 %}<span>
+                    <span title="{%= __("Projected") %}">({%= projected_qty || 0 %})<span>
+                </div>
+                {% } %}
+            </div>
+            <div class="col-xs-2 text-center pos-qty-btn" data-action="increase-qty"><i class="icon-plus-sign text-muted"></i></div>
+        </div>
+    </div>
+    <div class="col-xs-3 text-right">
+        <div class="row pos-qty-row">
+            <div class="control-input">
+                <select type="text" autocomplete="off" class="input-with-feedback form-control uom-conversion" maxlength="140">
+                {% for(var i=0, l=uoms.length; i<l; i++) { %}
+                    <option value="{%= uoms[i] %}" {%= uom == uoms[i]? "Selected" : "" %}>{%= uoms[i] %}</option>
+                {% } %}
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-3 text-right">
+        <h6>{%= amount %}<div class="text-muted" style="margin-top: 5px;">{%= rate %}</div></h6>
+    </div>
+</div>
+

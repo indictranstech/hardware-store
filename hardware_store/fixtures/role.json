@@ -1,0 +1,314 @@
+[
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:10:23.793890", 
+  "name": "System Manager", 
+  "role_name": "System Manager"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:10:23.795399", 
+  "name": "All", 
+  "role_name": "All"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:10:23.877915", 
+  "name": "Administrator", 
+  "role_name": "Administrator"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:10:23.879788", 
+  "name": "Guest", 
+  "role_name": "Guest"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:10:26.528504", 
+  "name": "Website Manager", 
+  "role_name": "Website Manager"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:10:28.860910", 
+  "name": "Blogger", 
+  "role_name": "Blogger"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:10:44.041297", 
+  "name": "Sales User", 
+  "role_name": "Sales User"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:10:44.055812", 
+  "name": "Accounts User", 
+  "role_name": "Accounts User"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:10:44.057978", 
+  "name": "Purchase User", 
+  "role_name": "Purchase User"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:10:53.331542", 
+  "name": "Report Manager", 
+  "role_name": "Report Manager"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:13:08.586164", 
+  "name": "Accounts Manager", 
+  "role_name": "Accounts Manager"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:13:08.638747", 
+  "name": "Auditor", 
+  "role_name": "Auditor"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:13:13.279690", 
+  "name": "Sales Master Manager", 
+  "role_name": "Sales Master Manager"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:13:14.993737", 
+  "name": "Supplier", 
+  "role_name": "Supplier"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:13:15.395605", 
+  "name": "Purchase Manager", 
+  "role_name": "Purchase Manager"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:13:15.481687", 
+  "name": "Purchase Master Manager", 
+  "role_name": "Purchase Master Manager"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:13:17.390769", 
+  "name": "Employee", 
+  "role_name": "Employee"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:13:17.437975", 
+  "name": "Stock User", 
+  "role_name": "Stock User"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:13:19.173577", 
+  "name": "Sales Manager", 
+  "role_name": "Sales Manager"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:13:25.179628", 
+  "name": "Customer", 
+  "role_name": "Customer"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:13:32.196073", 
+  "name": "Newsletter Manager", 
+  "role_name": "Newsletter Manager"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:13:37.722886", 
+  "name": "Stock Manager", 
+  "role_name": "Stock Manager"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:13:38.736540", 
+  "name": "Quality Manager", 
+  "role_name": "Quality Manager"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:13:40.881138", 
+  "name": "Manufacturing Manager", 
+  "role_name": "Manufacturing Manager"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:13:43.784268", 
+  "name": "Projects User", 
+  "role_name": "Projects User"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:13:48.384532", 
+  "name": "Projects Manager", 
+  "role_name": "Projects Manager"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:13:51.920487", 
+  "name": "Maintenance User", 
+  "role_name": "Maintenance User"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:13:54.362683", 
+  "name": "Maintenance Manager", 
+  "role_name": "Maintenance Manager"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:14:01.706872", 
+  "name": "Item Manager", 
+  "role_name": "Item Manager"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:14:14.675241", 
+  "name": "HR User", 
+  "role_name": "HR User"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:14:15.854711", 
+  "name": "HR Manager", 
+  "role_name": "HR Manager"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:14:21.239557", 
+  "name": "Leave Approver", 
+  "role_name": "Leave Approver"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:14:28.864334", 
+  "name": "Expense Approver", 
+  "role_name": "Expense Approver"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:14:34.679769", 
+  "name": "Manufacturing User", 
+  "role_name": "Manufacturing User"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:15:23.842688", 
+  "name": "Support Team", 
+  "role_name": "Support Team"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-21 17:15:39.045292", 
+  "name": "Analytics", 
+  "role_name": "Analytics"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-24 10:34:23.520732", 
+  "name": "Cashier", 
+  "role_name": "Cashier"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-24 10:35:14.467118", 
+  "name": "Sales Person", 
+  "role_name": "Sales Person"
+ }, 
+ {
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Role", 
+  "modified": "2016-06-24 11:22:33.903373", 
+  "name": "Manager", 
+  "role_name": "Manager"
+ }
+]
