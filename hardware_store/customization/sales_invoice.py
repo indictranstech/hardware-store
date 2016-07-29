@@ -77,8 +77,8 @@ def get_items(price_list, sales_or_purchase, customer_group, item=None):
 	query = frappe.db.sql("""select i.name, i.item_name , i.image, reg.price_list_rate, 
 		reg.uom, reg.minimum_qty  
 		from `tabItem`as  i LEFT JOIN 
-			(select parent , CONCAT(rate ,' ',uom_quantity) as price_list_rate, min(minimum_qty) as minimum_qty, uom_quantity as uom  from 
-						`{child_table}` where  rate IS not null group by uom_quantity) reg 
+			(select parent , CONCAT(' ',uom_quantity, '-' ,TRUNCATE(rate, 2) ) as price_list_rate, min(minimum_qty) as minimum_qty, uom_quantity as uom  from 
+						`{child_table}` where minimum_qty !=0 group by uom_quantity) reg 
 		ON 
 			(i.name = reg.parent or reg.parent=i.variant_of )
 		where
@@ -89,11 +89,11 @@ def get_items(price_list, sales_or_purchase, customer_group, item=None):
 			i.name
 		limit 24""".format(condition=condition, order_by=order_by, child_table=item_price_list), args, as_dict=1)
 
-	price_acc_to_uom =frappe.db.sql("""select i.name as item_code, ifnull(CONCAT(' ',reg.uom_quantity, '-' , TRUNCATE(reg.rate,0)), 0.0) rate, reg.minimum_qty 
+	price_acc_to_uom =frappe.db.sql("""select i.name as item_code, ifnull(CONCAT(' ',reg.uom_quantity, '-' , TRUNCATE(reg.rate,2)), 0.0) rate, reg.minimum_qty 
 			from `tabItem` i , `{0}` reg  
 			where 
 				i.name = reg.parent and (reg.name,reg.minimum_qty) in 
-				(select reg.name, min(reg.minimum_qty) from `{0}` reg   group by reg.parent, reg.uom_quantity)""" .format(item_price_list),as_dict=1)
+				(select reg.name, min(reg.minimum_qty) from `{0}` reg where reg.minimum_qty !=0  group by reg.parent, reg.uom_quantity)""" .format(item_price_list),as_dict=1)
 	
 	c = {}
 	for d in price_acc_to_uom:
@@ -104,6 +104,7 @@ def get_items(price_list, sales_or_purchase, customer_group, item=None):
 			i['price_list_rate'] = c[i['item_name']]
 
 	return query
+
 
 
 

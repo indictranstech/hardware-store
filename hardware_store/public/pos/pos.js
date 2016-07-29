@@ -755,7 +755,7 @@ erpnext.pos.PointOfSale = Class.extend({
 	},
 	hide_quotation_area: function(){
 		if(cur_frm.doc.doctype == "Quotation" ){
-			this.wrapper.find(".quotation-area").find(".btn.btn-default").toggleClass("hide", this.frm.doc.__islocal ==1);
+			this.wrapper.find(".quotation-area").find(".btn.btn-default").toggleClass("hide", this.frm.doc.__islocal ==1 || this.frm.doc.status == "Lost");
 		}
 			
 	},
