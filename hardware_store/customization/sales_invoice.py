@@ -89,11 +89,14 @@ def get_items(price_list, sales_or_purchase, customer_group, item=None):
 			i.name
 		limit 24""".format(condition=condition, order_by=order_by, child_table=item_price_list), args, as_dict=1)
 	
-	price_acc_to_uom =frappe.db.sql("""select i.name as item_code, ifnull(CONCAT(' ',reg.uom_quantity, '-' , TRUNCATE(reg.rate,2)), 0.0) rate, reg.minimum_qty 
-			from `tabItem` i , `{0}` reg  
-			where 
-				i.name = reg.parent and (reg.name,reg.minimum_qty) in 
-				(select reg.name, min(reg.minimum_qty) from `{0}` reg where reg.minimum_qty !=0  group by reg.parent, reg.uom_quantity)""" .format(item_price_list),as_dict=1)
+
+	
+
+	price_acc_to_uom =frappe.db.sql("""select i.name, i.item_name as item_code , ifnull(CONCAT(' ',reg.uom_quantity, '-' , TRUNCATE(reg.rate,2)), 0.0) rate, reg.minimum_qty, reg.uom_quantity 
+		from `tabItem` i , `{0}` reg  
+		where 
+			i.name = reg.parent and (reg.uom_quantity,reg.minimum_qty,reg.parent) in 
+			(select reg.uom_quantity,min(reg.minimum_qty),reg.parent  from `{0}` reg  group by reg.parent,reg.uom_quantity)""" .format(item_price_list),as_dict=1,debug=1)
 	
 	c = {}
 	for d in price_acc_to_uom:
@@ -102,6 +105,7 @@ def get_items(price_list, sales_or_purchase, customer_group, item=None):
 	for i in query:
 		if i['item_name'] in c.keys():
 			i['price_list_rate'] = c[i['item_name']]
+	
 	return query
 
 
