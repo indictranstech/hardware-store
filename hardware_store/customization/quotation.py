@@ -17,28 +17,18 @@ def rate(args):
 		Price_list = "tabCredit Customers"
 		quantity = quantity_range(Price_list, item_name, item_conversation)
 		required_qty =sort_quantity(item_qty, quantity)
+		return final_item_rate(Price_list, item_name, required_qty,item_conversation)
 	elif arg['customer_group'] == "Resellers":
 		Price_list = "tabReseller Customers"
 		quantity = quantity_range(Price_list, item_name, item_conversation)
 		required_qty = sort_quantity(item_qty, quantity)
-	else:
+		return final_item_rate(Price_list, item_name, required_qty, item_conversation)
+	elif arg['customer_group'] == "Regular Customers":
 		Price_list = "tabRegular Customers"
 		quantity = quantity_range(Price_list, item_name, item_conversation)
 		required_qty =sort_quantity(item_qty, quantity)
+		return final_item_rate(Price_list, item_name, required_qty, item_conversation)
 	
-	rate = frappe.db.sql("""SELECT chld_tbl.rate as rate 
-					from 
-						`tabItem` as item, `%s` as chld_tbl 
-					where 
-							item.name = chld_tbl.parent
-						and 
-							item.name = '%s'
-						and 
-							chld_tbl.minimum_qty = %s
-						""" %(Price_list, item_name, required_qty or 0),as_dict=1)
-	
-	return rate
-
 
 def quantity_range(Price_list, item_name, item_conversation):
 	item_quanties = []
@@ -60,7 +50,21 @@ def sort_quantity(item_qty, quantity):
 				return int(qty)
 			elif int(max(item_quanties)) < int(item_qty):
 				return int(max(item_quanties))
-			
+	
+def final_item_rate(Price_list, item_name, required_qty, item_conversation):
+	return frappe.db.sql("""SELECT chld_tbl.rate as rate 
+					from 
+						`tabItem` as item, `%s` as chld_tbl 
+					where 
+							item.name = chld_tbl.parent
+						and 
+							item.name = '%s'
+						and 
+							chld_tbl.minimum_qty = %s
+						and
+							chld_tbl.uom_quantity ='%s'
+						""" %(Price_list, item_name, required_qty or 0, item_conversation),as_dict=1)
+
 @frappe.whitelist()
 def make_sales_invoice(source_name, target_doc=None, ignore_permissions=False):
 	def postprocess(source, target):

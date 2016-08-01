@@ -25,6 +25,7 @@ function get_rate_from_item (item, customer_group) {
 		callback:function(r) {
 			if(r.message) {
 				item.rate =r.message[0]['rate']
+				cur_frm.refresh_fields();
 			}
 		}
 	})
