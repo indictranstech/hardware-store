@@ -91,16 +91,20 @@ doc_events = {
 # ---------------
 
 scheduler_events = {
-	"daily": [
+	"hourly": [
 		"hardware_store.hardware_store.doctype.configuration.configuration.quotation_status"
 	]
+	# ,
+	# "daily": [
+	# 	"hardware_store.hardware_store.doctype.configuration.configuration.quotation_status"
+	# ]
 }
 
 
 # scheduler_events = {
-# 	"all": [
-# 		"hardware_store.tasks.all"
-# 	],
+	# "all": [
+	# 	"hardware_store.hardware_store.configuration.configuration.quotation_status"
+	# ],
 # 	"daily": [
 # 		"hardware_store.tasks.daily"
 # 	],
