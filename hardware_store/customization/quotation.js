@@ -91,6 +91,7 @@ frappe.ui.form.on("Quotation Item", {
 				callback: function(r) {
 					if(!r.exc) {
 						custom_conversion_factor(cur_frm.doc, cdt, cdn);
+						cur_frm.script_manager.trigger("qty", cdt, cdn);
 					}
 				}
 			});

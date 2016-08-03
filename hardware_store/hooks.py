@@ -94,10 +94,6 @@ scheduler_events = {
 	"hourly": [
 		"hardware_store.hardware_store.doctype.configuration.configuration.quotation_status"
 	]
-	# ,
-	# "daily": [
-	# 	"hardware_store.hardware_store.doctype.configuration.configuration.quotation_status"
-	# ]
 }
 
 

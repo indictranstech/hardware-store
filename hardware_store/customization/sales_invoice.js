@@ -36,7 +36,10 @@ function get_rate_from_item (item, customer_group) {
  	var me = this;
  	if (cint(frappe.defaults.get_user_defaults("fs_pos_view"))===1)
 						erpnext.pos.toggle(cur_frm, true);
-	if(cur_frm.doc.__islocal){
+	// frappe.route_history[frappe.route_history.length -1][1]
+	// frappe.get_prev_route()
+	
+	if(cur_frm.doc.__islocal && frappe.get_prev_route() && (frappe.get_prev_route()[1] != 'Quotation' )){
 		frappe.call({
 	 		method : "hardware_store.customization.customization.default_customer",
 	 		callback:function(r) {
@@ -79,6 +82,7 @@ frappe.ui.form.on("Sales Invoice Item", {
 				callback: function(r) {
 					if(!r.exc) {
 						custom_conversion_factor(cur_frm.doc, cdt, cdn);
+						cur_frm.script_manager.trigger("qty", cdt, cdn);	
 					}
 				}
 			});
