@@ -850,10 +850,7 @@ erpnext.pos.PointOfSale = Class.extend({
 		var me = this;
 		var item_code = $item.attr("data-item-code");
 		var item_qty = cint($item.find("input.pos-item-qty").val());
-		console.log("11111111111111")
-		console.log(item_qty)
-		console.log("2222222222")
-		console.log(item_code)
+	
 
 		// if (operation == "increase-qty")
 		// 	this.update_qty(item_code, item_qty + 1);
@@ -869,7 +866,6 @@ erpnext.pos.PointOfSale = Class.extend({
 			}else if(item_qty == 0) {
 				$.each(cur_frm.doc["items"] || [], function(i, d) {
 					if (d.item_name == "Money Convertor")	{
-						console.log("inside")
 						frappe.model.clear_doc(d.doctype, d.name);
 						me.refresh_grid();
 					}
@@ -885,8 +881,10 @@ erpnext.pos.PointOfSale = Class.extend({
 			.toggle(this.frm.doc.docstatus===0);
 
 		$(this.wrapper).find('input, button').prop("disabled", !(this.frm.doc.docstatus===0));
-		$(this.wrapper).find(".uom-conversion").prop("disabled",!(this.frm.doc.docstatus===0))
-		$(this.wrapper).find(".quotation-area").find('input, button').prop("disabled", false, !(this.frm.doc.docstatus===0));
+		$(this.wrapper).find(".uom-conversion").prop("disabled",!(this.frm.doc.docstatus===0)) 
+		if(this.frm.doc.doctype =="Quotation"){
+			$(this.wrapper).find(".quotation-area").find('input, button').prop("disabled", false, !(this.frm.doc.docstatus===0));
+		}
 
 		// this.wrapper.find(".pos-item-area").toggleClass("hide", me.frm.doc.docstatus!==0);
 
@@ -902,12 +900,17 @@ erpnext.pos.PointOfSale = Class.extend({
 			this.frm.page.set_primary_action(__("Pay"), function() {
 				me.make_payment();
 			});
-		} else if (this.frm.doc.docstatus===1) {
+		} else if (this.frm.doc.docstatus===1 && !(frappe.get_cookie("user_id") == "Administrator") && !inList(user_roles,"Cashier") && this.frm.doctype == "Quotation" ) {
 			this.frm.page.set_primary_action(__("New"), function() {
 				erpnext.open_as_pos = true;
 				new_doc(me.frm.doctype);
 			});
-		}
+		} else if (this.frm.doc.docstatus===1 && this.frm.doctype == "Sales Invoice") {
+			this.frm.page.set_primary_action(__("New"), function() {
+				erpnext.open_as_pos = true;
+				new_doc(me.frm.doctype);
+			});
+		} 
 	},
 	refresh_delete_btn: function() {
 		$(this.wrapper).find(".remove-items").toggle($(".item-cart .warning").length ? true : false);
