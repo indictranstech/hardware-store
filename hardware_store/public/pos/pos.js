@@ -931,19 +931,20 @@ erpnext.pos.PointOfSale = Class.extend({
 	},
 	with_modes_of_payment: function(callback) {
 		var me = this;
-		if(me.modes_of_payment) {
-			callback();
-		} else {
+		// if(me.modes_of_payment) {
+			// callback();
+		// } else {
 			me.modes_of_payment = [];
 			$.ajax("/api/resource/Mode of Payment").success(function(data) {
-				if(!(frappe.get_cookie("user_id") == "Administrator") && inList(user_roles,"Cashier")){
+				// if (me.wrapper.find("input[data-fieldname='customer']").val() == "Convert Money Customer")
+				if(!(frappe.get_cookie("user_id") == "Administrator") && inList(user_roles,"Cashier") && ($("body").find("input[data-fieldname='customer']").val() == "Convert Money Customer") ){
 					$.each(data.data, function(i, d) { if (d.name == "Cash"){me.modes_of_payment.push(d.name);} });
 				}else{
 					$.each(data.data, function(i, d) { if (d.name != "Bank Draft" && d.name != "Credit Card" && d.name != "Wire Transfer"){me.modes_of_payment.push(d.name);} });				
 				}
 				callback();
 			});
-		}
+		// }
 	},
 	make_payment: function() {
 		var me = this;
