@@ -418,16 +418,6 @@ erpnext.pos.PointOfSale = Class.extend({
 				$.each(me.frm.doc["items"] || [], function(i, d) {
 					frappe.model.clear_doc(d.doctype, d.name);
 					me.refresh_grid();
-					// if (d.item_name != "Money Convertor" || []) {
-					// 	// if (d.qty == 1) {
-					// 		frappe.model.clear_doc(d.doctype, d.name);
-					// 		me.refresh_grid();
-					// 		// me.add_new_item_for_money_convertor(dialog);
-					// 	// }
-					// }else{
-					// 	frappe.model.clear_doc(d.doctype, d.name);
-					// 	me.refresh_grid();
-					// }
 				});
 				me.add_new_item_for_money_convertor(dialog);
 				dialog.hide();	
@@ -857,13 +847,35 @@ erpnext.pos.PointOfSale = Class.extend({
 		}
 	},
 	increase_decrease_qty: function($item, operation) {
+		var me = this;
 		var item_code = $item.attr("data-item-code");
 		var item_qty = cint($item.find("input.pos-item-qty").val());
+		console.log("11111111111111")
+		console.log(item_qty)
+		console.log("2222222222")
+		console.log(item_code)
 
-		if (operation == "increase-qty")
+		// if (operation == "increase-qty")
+		// 	this.update_qty(item_code, item_qty + 1);
+		// else if (operation == "decrease-qty" && item_qty != 0)
+		// 	this.update_qty(item_code, item_qty - 1);
+
+		if (operation == "increase-qty"){
 			this.update_qty(item_code, item_qty + 1);
-		else if (operation == "decrease-qty" && item_qty != 0)
-			this.update_qty(item_code, item_qty - 1);
+		}
+		else {
+			if (operation == "decrease-qty" && item_qty != 0){
+				this.update_qty(item_code, item_qty - 1);
+			}else if(item_qty == 0) {
+				$.each(cur_frm.doc["items"] || [], function(i, d) {
+					if (d.item_name == "Money Convertor")	{
+						console.log("inside")
+						frappe.model.clear_doc(d.doctype, d.name);
+						me.refresh_grid();
+					}
+				});
+			}
+		}
 	},
 	disable_text_box_and_button: function() {
 		var me = this;
