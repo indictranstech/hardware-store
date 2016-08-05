@@ -275,18 +275,15 @@ erpnext.pos.PointOfSale = Class.extend({
 
 	make_stock_balance_report: function() {
 		var me = this;
-		// if (this.frm.doc.docstatus===0){
 			parent = this.wrapper.find(".report-item-area")
 			item_stock = cur_frm.add_custom_button(__("Stock"), function() {
 				if(me.frm.doc.items.length > 0){
-					// console.log(me.frm.doc.items)
 					me.dialog_stock_balance()
 				}else{
 					msgprint(__("Please Select Item first"))
 				}
 			});
 			$(parent).append($(item_stock))
-		// }			
 	},
 
 	dialog_stock_balance: function () {
@@ -851,12 +848,13 @@ erpnext.pos.PointOfSale = Class.extend({
 		var item_code = $item.attr("data-item-code");
 		var item_qty = cint($item.find("input.pos-item-qty").val());
 	
-
-		// if (operation == "increase-qty")
-		// 	this.update_qty(item_code, item_qty + 1);
-		// else if (operation == "decrease-qty" && item_qty != 0)
-		// 	this.update_qty(item_code, item_qty - 1);
-
+		// original code
+			// if (operation == "increase-qty")
+			// 	this.update_qty(item_code, item_qty + 1);
+			// else if (operation == "decrease-qty" && item_qty != 0)
+			// 	this.update_qty(item_code, item_qty - 1);
+		// end 
+		
 		if (operation == "increase-qty"){
 			this.update_qty(item_code, item_qty + 1);
 		}
@@ -946,12 +944,8 @@ erpnext.pos.PointOfSale = Class.extend({
 	},
 	with_modes_of_payment: function(callback) {
 		var me = this;
-		// if(me.modes_of_payment) {
-			// callback();
-		// } else {
 			me.modes_of_payment = [];
 			$.ajax("/api/resource/Mode of Payment").success(function(data) {
-				// if (me.wrapper.find("input[data-fieldname='customer']").val() == "Convert Money Customer")
 				if(!(frappe.get_cookie("user_id") == "Administrator") && inList(user_roles,"Cashier") && ($("body").find("input[data-fieldname='customer']").val() == "Convert Money Customer") ){
 					$.each(data.data, function(i, d) { if (d.name == "Cash"){me.modes_of_payment.push(d.name);} });
 				}else{
@@ -959,7 +953,6 @@ erpnext.pos.PointOfSale = Class.extend({
 				}
 				callback();
 			});
-		// }
 	},
 	make_payment: function() {
 		var me = this;
