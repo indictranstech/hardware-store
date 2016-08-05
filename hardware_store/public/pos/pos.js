@@ -248,7 +248,7 @@ erpnext.pos.PointOfSale = Class.extend({
 	},
 	make_currency_convertor: function() {
 		var me = this;
-		if (this.frm.doctype == "Sales Invoice" && this.frm.doc.docstatus===0){
+		if (this.frm.doctype == "Sales Invoice"){
 			parent = this.wrapper.find(".currency-convertor")
 			convertor = cur_frm.add_custom_button(__("Convert Money"), function() {
 				me.convert_money_customer()
@@ -275,18 +275,15 @@ erpnext.pos.PointOfSale = Class.extend({
 
 	make_stock_balance_report: function() {
 		var me = this;
-		if (this.frm.doc.docstatus===0){
 			parent = this.wrapper.find(".report-item-area")
 			item_stock = cur_frm.add_custom_button(__("Stock"), function() {
 				if(me.frm.doc.items.length > 0){
-					// console.log(me.frm.doc.items)
 					me.dialog_stock_balance()
 				}else{
 					msgprint(__("Please Select Item first"))
 				}
 			});
 			$(parent).append($(item_stock))
-		}			
 	},
 
 	dialog_stock_balance: function () {
@@ -418,16 +415,6 @@ erpnext.pos.PointOfSale = Class.extend({
 				$.each(me.frm.doc["items"] || [], function(i, d) {
 					frappe.model.clear_doc(d.doctype, d.name);
 					me.refresh_grid();
-					// if (d.item_name != "Money Convertor" || []) {
-					// 	// if (d.qty == 1) {
-					// 		frappe.model.clear_doc(d.doctype, d.name);
-					// 		me.refresh_grid();
-					// 		// me.add_new_item_for_money_convertor(dialog);
-					// 	// }
-					// }else{
-					// 	frappe.model.clear_doc(d.doctype, d.name);
-					// 	me.refresh_grid();
-					// }
 				});
 				me.add_new_item_for_money_convertor(dialog);
 				dialog.hide();	
@@ -857,13 +844,32 @@ erpnext.pos.PointOfSale = Class.extend({
 		}
 	},
 	increase_decrease_qty: function($item, operation) {
+		var me = this;
 		var item_code = $item.attr("data-item-code");
 		var item_qty = cint($item.find("input.pos-item-qty").val());
-
-		if (operation == "increase-qty")
+	
+		// original code
+			// if (operation == "increase-qty")
+			// 	this.update_qty(item_code, item_qty + 1);
+			// else if (operation == "decrease-qty" && item_qty != 0)
+			// 	this.update_qty(item_code, item_qty - 1);
+		// end 
+		
+		if (operation == "increase-qty"){
 			this.update_qty(item_code, item_qty + 1);
-		else if (operation == "decrease-qty" && item_qty != 0)
-			this.update_qty(item_code, item_qty - 1);
+		}
+		else {
+			if (operation == "decrease-qty" && item_qty != 0){
+				this.update_qty(item_code, item_qty - 1);
+			}else if(item_qty == 0) {
+				$.each(cur_frm.doc["items"] || [], function(i, d) {
+					if (d.item_name == "Money Convertor")	{
+						frappe.model.clear_doc(d.doctype, d.name);
+						me.refresh_grid();
+					}
+				});
+			}
+		}
 	},
 	disable_text_box_and_button: function() {
 		var me = this;
@@ -873,8 +879,10 @@ erpnext.pos.PointOfSale = Class.extend({
 			.toggle(this.frm.doc.docstatus===0);
 
 		$(this.wrapper).find('input, button').prop("disabled", !(this.frm.doc.docstatus===0));
-		$(this.wrapper).find(".uom-conversion").prop("disabled",!(this.frm.doc.docstatus===0))
-		$(this.wrapper).find(".quotation-area").find('input, button').prop("disabled", false, !(this.frm.doc.docstatus===0));
+		$(this.wrapper).find(".uom-conversion").prop("disabled",!(this.frm.doc.docstatus===0)) 
+		if(this.frm.doc.doctype =="Quotation"){
+			$(this.wrapper).find(".quotation-area").find('input, button').prop("disabled", false, !(this.frm.doc.docstatus===0));
+		}
 
 		// this.wrapper.find(".pos-item-area").toggleClass("hide", me.frm.doc.docstatus!==0);
 
@@ -890,12 +898,17 @@ erpnext.pos.PointOfSale = Class.extend({
 			this.frm.page.set_primary_action(__("Pay"), function() {
 				me.make_payment();
 			});
-		} else if (this.frm.doc.docstatus===1) {
+		} else if (this.frm.doc.docstatus===1 && !(frappe.get_cookie("user_id") == "Administrator") && !inList(user_roles,"Cashier") && this.frm.doctype == "Quotation" ) {
 			this.frm.page.set_primary_action(__("New"), function() {
 				erpnext.open_as_pos = true;
 				new_doc(me.frm.doctype);
 			});
-		}
+		} else if (this.frm.doc.docstatus===1 && this.frm.doctype == "Sales Invoice") {
+			this.frm.page.set_primary_action(__("New"), function() {
+				erpnext.open_as_pos = true;
+				new_doc(me.frm.doctype);
+			});
+		} 
 	},
 	refresh_delete_btn: function() {
 		$(this.wrapper).find(".remove-items").toggle($(".item-cart .warning").length ? true : false);
@@ -931,19 +944,15 @@ erpnext.pos.PointOfSale = Class.extend({
 	},
 	with_modes_of_payment: function(callback) {
 		var me = this;
-		if(me.modes_of_payment) {
-			callback();
-		} else {
 			me.modes_of_payment = [];
 			$.ajax("/api/resource/Mode of Payment").success(function(data) {
-				if(!(frappe.get_cookie("user_id") == "Administrator") && inList(user_roles,"Cashier")){
+				if(!(frappe.get_cookie("user_id") == "Administrator") && inList(user_roles,"Cashier") && ($("body").find("input[data-fieldname='customer']").val() == "Convert Money Customer") ){
 					$.each(data.data, function(i, d) { if (d.name == "Cash"){me.modes_of_payment.push(d.name);} });
 				}else{
 					$.each(data.data, function(i, d) { if (d.name != "Bank Draft" && d.name != "Credit Card" && d.name != "Wire Transfer"){me.modes_of_payment.push(d.name);} });				
 				}
 				callback();
 			});
-		}
 	},
 	make_payment: function() {
 		var me = this;

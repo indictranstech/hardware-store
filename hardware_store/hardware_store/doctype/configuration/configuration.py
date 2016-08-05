@@ -108,7 +108,7 @@ def item_stock_balance(arg):
 					`tabSales Invoice Item` as sii 
 				where si.docstatus = 1 and sii.parent = si.name and si.update_stock = 1 and sii.item_code in (%s) group by sii.item_code) as s 
 			where s.item= p.item """%(item_names, item_names)
-	data1 =  frappe.db.sql(query1, as_dict=1)
+	data1 =  frappe.db.sql(query1, as_dict=1,debug=1)
 	
 	if not data1:
 		query1 = """SELECT pri.item_code as item, ifnull(sum(pri.stock_qty),0) as actual_qty ,  pri.stock_qty / pri.conversion_factor as pack 

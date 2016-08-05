@@ -39,7 +39,7 @@ function get_rate_from_item (item, customer_group) {
 	// frappe.route_history[frappe.route_history.length -1][1]
 	// frappe.get_prev_route()
 	
-	if(cur_frm.doc.__islocal && frappe.get_prev_route() && (frappe.get_prev_route()[1] != 'Quotation' )){
+	if(cur_frm.doc.__islocal && frappe.get_prev_route() && (frappe.get_prev_route()[1] != 'Quotation' ) && cur_frm.doc.docstatus == 0){
 		frappe.call({
 	 		method : "hardware_store.customization.customization.default_customer",
 	 		callback:function(r) {
