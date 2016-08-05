@@ -94,36 +94,37 @@ def item_stock_balance(arg):
 
 	item_names = ",".join(["'%s'"%name for name in item_name])
 	
-	query1 = """SELECT  s.item as item , p.p_qty ,(p.p_qty - s.qty) as actual_qty , p.con, (p.p_qty - s.qty) / p.con as pack from  
-		(
-		 	select pri.item_code as item, ifnull(sum(pri.stock_qty),0) as p_qty , pri.conversion_factor as con 
+	query1 = """SELECT  p.item as item , p.p_qty ,(p.p_qty - ifnull(s.qty,00)) as actual_qty , p.con, (p.p_qty - ifnull(s.qty,0.0)) / p.con as pack 
+			from   
+			(
+				SELECT pri.item_code as item, ifnull(sum(pri.stock_qty),0) as p_qty , pri.conversion_factor as con 
 				from 
-					`tabPurchase Receipt Item` as pri, 
+					`tabPurchase Receipt Item` as pri,  
 					`tabPurchase Receipt` as pr 
-				where pr.docstatus = 1 and pri.parent = pr.name and pri.item_code in (%s) group by pri.item_code) as p,  
-		(
-			select sii.item_code as item  , ifnull(sum(sii.qty),0) as qty 
+				where 
+					pr.docstatus = 1 
+				and 
+					pri.parent = pr.name 
+				and 
+					pri.item_code in ({0}) 
+				group by pri.item_code) as p 
+			LEFT JOIN 
+			(
+				select sii.item_code as item  , ifnull(sum(sii.qty),0) as qty  
 				from 
 					`tabSales Invoice` as si, 
 					`tabSales Invoice Item` as sii 
-				where si.docstatus = 1 and sii.parent = si.name and si.update_stock = 1 and sii.item_code in (%s) group by sii.item_code) as s 
-			where s.item= p.item """%(item_names, item_names)
-	data1 =  frappe.db.sql(query1, as_dict=1,debug=1)
-	
-	if not data1:
-		query1 = """SELECT pri.item_code as item, ifnull(sum(pri.stock_qty),0) as actual_qty ,  pri.stock_qty / pri.conversion_factor as pack 
-				from 
-					`tabPurchase Receipt Item` as pri, 
-					`tabPurchase Receipt` as pr 
-				where pr.docstatus = 1 and pri.parent = pr.name and pri.item_code in (%s) group by pri.item_code"""%(item_names)
-		data1 =  frappe.db.sql(query1, as_dict=1)
-
-	else:
-		query = """SELECT pri.item_code as item, ifnull(sum(pri.stock_qty),0) as actual_qty ,  pri.stock_qty / pri.conversion_factor as pack 
-				from 
-					`tabPurchase Receipt Item` as pri, 
-					`tabPurchase Receipt` as pr 
-				where pr.docstatus = 1 and pri.parent = pr.name and pri.item_code in (%s) group by pri.item_code"""%(item_names)
-		data =  frappe.db.sql(query1, as_dict=1)
+				where 
+					si.docstatus = 1 
+				and 
+					sii.parent = si.name 
+				and 
+					si.update_stock = 1 
+				and 
+					sii.item_code in ({0}) 
+				group by sii.item_code) as s 
+		ON p.item = s.item""" .format(item_names)
+	data1 =  frappe.db.sql(query1, as_dict=1)
 	return data1
 
+	

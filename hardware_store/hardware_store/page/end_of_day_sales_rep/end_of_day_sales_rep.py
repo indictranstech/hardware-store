@@ -9,7 +9,7 @@ from frappe.utils.csvutils import UnicodeWriter
 
 @frappe.whitelist()
 def get_sales_total(to_date):
-	query = """SELECT ifnull(mode_of_payment, 'Total') as mode_pay, sum(grand_total) as grand_total, CONCAT('G',' ', TRUNCATE(sum(base_total), 2)) as base_total 
+	query = """SELECT ifnull(mode_of_payment, 'Total') as mode_pay, sum(grand_total) as grand_total, CONCAT('G',' ', TRUNCATE(sum(base_grand_total), 2)) as base_total 
 				from 
 					`tabSales Invoice` 
 				where 
@@ -22,7 +22,7 @@ def get_sales_total(to_date):
 
 @frappe.whitelist()
 def get_todays_sales(to_date):
-	query = """ SELECT IFNULL(name,"Total") as transction, sum(grand_total) as HTD, CONCAT('G',' ', TRUNCATE(sum(base_total),2)) as HTG , IFNULL(mode_of_payment,'') as payment FROM `tabSales Invoice`
+	query = """ SELECT IFNULL(name,"Total") as transction, sum(grand_total) as HTD, CONCAT('G',' ', TRUNCATE(sum(base_grand_total),2)) as HTG , IFNULL(mode_of_payment,'') as payment FROM `tabSales Invoice`
 				 WHERE 
 				 		date(creation)= '%s' 
 				 	and
@@ -83,7 +83,7 @@ def get_balance(to_date):
 				CONCAT('G',' ', TRUNCATE((sales.base_total + pay.HTG + credit_account.HTG - exp.amount_htg - money.base_rate),2))  as deposit_htg
 			from 
 				(
-					SELECT  ifnull(sum(grand_total),0.0) as grand_total, ifnull(sum(base_total),0.0) as base_total 
+					SELECT  ifnull(sum(grand_total),0.0) as grand_total, ifnull(sum(base_grand_total),0.0) as base_total 
 						FROM 
 							`tabSales Invoice` 
 						where 
@@ -91,7 +91,7 @@ def get_balance(to_date):
 							and 
 								docstatus = 1) as sales ,
 				 (
-					SELECT ifnull(sum(grand_total),0.0) as HTD, TRUNCATE(ifnull(sum(base_total),0.0),2) as HTG , IFNULL(mode_of_payment,'') as payment 
+					SELECT ifnull(sum(grand_total),0.0) as HTD, TRUNCATE(ifnull(sum(base_grand_total),0.0),2) as HTG , IFNULL(mode_of_payment,'') as payment 
 						FROM 
 							`tabSales Invoice`
 						 WHERE 
