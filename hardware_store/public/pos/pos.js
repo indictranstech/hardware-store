@@ -248,7 +248,7 @@ erpnext.pos.PointOfSale = Class.extend({
 	},
 	make_currency_convertor: function() {
 		var me = this;
-		if (this.frm.doctype == "Sales Invoice" && this.frm.doc.docstatus===0){
+		if (this.frm.doctype == "Sales Invoice"){
 			parent = this.wrapper.find(".currency-convertor")
 			convertor = cur_frm.add_custom_button(__("Convert Money"), function() {
 				me.convert_money_customer()
@@ -275,7 +275,7 @@ erpnext.pos.PointOfSale = Class.extend({
 
 	make_stock_balance_report: function() {
 		var me = this;
-		if (this.frm.doc.docstatus===0){
+		// if (this.frm.doc.docstatus===0){
 			parent = this.wrapper.find(".report-item-area")
 			item_stock = cur_frm.add_custom_button(__("Stock"), function() {
 				if(me.frm.doc.items.length > 0){
@@ -286,7 +286,7 @@ erpnext.pos.PointOfSale = Class.extend({
 				}
 			});
 			$(parent).append($(item_stock))
-		}			
+		// }			
 	},
 
 	dialog_stock_balance: function () {
