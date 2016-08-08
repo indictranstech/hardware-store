@@ -27,3 +27,7 @@ frappe.ui.form.on("Purchase Order Item", "item_code", function(frm,cdt,cdn) {
 		frappe.throw(__("Please select Supplier first"));
 	} 
 });
+frappe.ui.form.on("Purchase Order","onload",function(doc, dt, dn){
+	cur_frm.set_value("currency","USD")
+	// cur_frm.set_value("conversion_rate","355")
+})

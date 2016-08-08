@@ -1,1 +1,11 @@
-[]
+[
+ {
+  "docstatus": 0, 
+  "doctype": "Custom Script", 
+  "dt": "Purchase Invoice", 
+  "modified": "2016-08-08 12:47:42.602200", 
+  "name": "Purchase Invoice-Client", 
+  "script": "", 
+  "script_type": "Client"
+ }
+]

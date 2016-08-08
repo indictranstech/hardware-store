@@ -52,7 +52,7 @@ def sort_quantity(item_qty, quantity):
 				return int(max(item_quanties))
 	
 def final_item_rate(Price_list, item_name, required_qty, item_conversation):
-	return frappe.db.sql("""SELECT chld_tbl.rate as rate 
+	item_rate  =  frappe.db.sql("""SELECT chld_tbl.rate as rate 
 					from 
 						`tabItem` as item, `%s` as chld_tbl 
 					where 
@@ -64,6 +64,7 @@ def final_item_rate(Price_list, item_name, required_qty, item_conversation):
 						and
 							chld_tbl.uom_quantity ='%s'
 						""" %(Price_list, item_name, required_qty or 0, item_conversation),as_dict=1)
+	return item_rate if item_rate else [{'rate': 0.0}]
 
 @frappe.whitelist()
 def make_sales_invoice(source_name, target_doc=None, ignore_permissions=False):
@@ -113,3 +114,14 @@ def make_sales_invoice(source_name, target_doc=None, ignore_permissions=False):
 	}, target_doc, postprocess, ignore_permissions=ignore_permissions)
 
 	return doclist
+
+
+
+def grand_total_usd(self, method):
+		query = "select `name`,`exchange_rate` from `tabCurrency Exchange` where parent = 'Configuration' and from_currency ='USD' and to_currency = 'HTD' "
+		data  =frappe.db.sql(query, as_dict=1)
+		if self.total and data:
+			self.total_usd = self.total / data[0]['exchange_rate']
+		if self.grand_total and data:
+				self.grand_total_usd = self.grand_total / data[0]['exchange_rate']
+			
