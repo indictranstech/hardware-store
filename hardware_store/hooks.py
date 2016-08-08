@@ -107,11 +107,11 @@ doc_events = {
 
 scheduler_events = {
 	"all": [
-		"hardware_store.hardware_store.configuration.configuration.quotation_status"
+		"hardware_store.hardware_store.doctype.configuration.configuration.quotation_status"
+	],
+	"hourly": [
+		"hardware_store.hardware_store.doctype.configuration.configuration.quotation_status"
 	]
-	# "hourly": [
-	# 	"hardware_store.hardware_store.doctype.configuration.configuration.quotation_status"
-	# ]
 }
 
 
