@@ -83,6 +83,21 @@ app_include_css = "/assets/css/hardware_rudy_store.css"
 doc_events = {
 	"Sales Invoice": {
 		"before_insert": "hardware_store.customization.sales_invoice.custom_for_pos"
+	},
+	"Sales Invoice": {
+		"validate": "hardware_store.customization.sales_invoice.grand_total_usd"
+	},
+	"Quotation": {
+		"validate": "hardware_store.customization.quotation.grand_total_usd"
+	},
+	"Purchase Order": {
+		"validate": "hardware_store.customization.customization.grand_total_htd"
+	},
+	"Purchase Invoice": {
+		"validate": "hardware_store.customization.customization.grand_total_htd"
+	},
+	"Purchase Receipt": {
+		"validate": "hardware_store.customization.customization.grand_total_htd"
 	}
 }
 
@@ -91,9 +106,12 @@ doc_events = {
 # ---------------
 
 scheduler_events = {
-	"hourly": [
-		"hardware_store.hardware_store.doctype.configuration.configuration.quotation_status"
+	"all": [
+		"hardware_store.hardware_store.configuration.configuration.quotation_status"
 	]
+	# "hourly": [
+	# 	"hardware_store.hardware_store.doctype.configuration.configuration.quotation_status"
+	# ]
 }
 
 

@@ -88,3 +88,12 @@ def default_customer():
 def convert_money_customer():
 	query = """SELECT name from `tabCustomer` where name ='Convert Money Customer'"""
 	return frappe.db.sql(query,as_dict=True)
+
+
+def grand_total_htd(self, method):
+		query = "select `name`,`exchange_rate` from `tabCurrency Exchange` where parent = 'Configuration' and from_currency ='USD' and to_currency = 'HTD'"
+		data  =frappe.db.sql(query, as_dict=1)
+		if self.total and data:
+			self.total_htd = self.total * data[0]['exchange_rate']
+		if self.grand_total and data:
+				self.grand_total_htd = self.grand_total * data[0]['exchange_rate']

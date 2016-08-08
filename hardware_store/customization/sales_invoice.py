@@ -11,6 +11,14 @@ def custom_for_pos(self, method):
 			self.write_off_amount = 0.0
 			self.outstanding_amount = self.base_grand_total 
 
+def grand_total_usd(self, method):
+		query = "select `name`,`exchange_rate` from `tabCurrency Exchange` where parent = 'Configuration' and from_currency ='USD' and to_currency = 'HTD' "
+		data  =frappe.db.sql(query, as_dict=1)
+		if self.total and data:
+			self.total_usd = self.total / data[0]['exchange_rate']
+		if self.grand_total and data:
+				self.grand_total_usd = self.grand_total / data[0]['exchange_rate']
+
 @frappe.whitelist()
 def get_items(price_list, sales_or_purchase, customer_group, item=None):
 	condition = ""

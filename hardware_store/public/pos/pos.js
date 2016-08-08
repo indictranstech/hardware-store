@@ -747,6 +747,7 @@ erpnext.pos.PointOfSale = Class.extend({
 		this.show_items_in_item_cart();
 		this.show_taxes();
 		this.set_totals();
+		//this.set_usd_total();
 		this.hide_quotation_area();
 
 	},
@@ -805,6 +806,13 @@ erpnext.pos.PointOfSale = Class.extend({
 			}
 		});
 	},
+	set_usd_total: function(){
+		data = this.frm.doc['grand_total']
+		cur_frm.set_value("grand_total_usd", this.frm.doc['grand_total'])
+		frappe.model.set_value(this.frm.doc.doctype, this.frm.doc.docname, "grand_total_usd", data);
+		console.log(data)
+	},
+
 	set_totals: function() {
 		var me = this;
 		data = format_currency(me.frm.doc["base_total"], get_currency_symbol())
@@ -854,7 +862,6 @@ erpnext.pos.PointOfSale = Class.extend({
 			// else if (operation == "decrease-qty" && item_qty != 0)
 			// 	this.update_qty(item_code, item_qty - 1);
 		// end 
-		
 		if (operation == "increase-qty"){
 			this.update_qty(item_code, item_qty + 1);
 		}
@@ -944,15 +951,30 @@ erpnext.pos.PointOfSale = Class.extend({
 	},
 	with_modes_of_payment: function(callback) {
 		var me = this;
+		if(me.modes_of_payment) {
+			callback();
+		} else {
 			me.modes_of_payment = [];
 			$.ajax("/api/resource/Mode of Payment").success(function(data) {
-				if(!(frappe.get_cookie("user_id") == "Administrator") && inList(user_roles,"Cashier") && ($("body").find("input[data-fieldname='customer']").val() == "Convert Money Customer") ){
+				if(!(frappe.get_cookie("user_id") == "Administrator") && inList(user_roles,"Cashier")) {
 					$.each(data.data, function(i, d) { if (d.name == "Cash"){me.modes_of_payment.push(d.name);} });
 				}else{
 					$.each(data.data, function(i, d) { if (d.name != "Bank Draft" && d.name != "Credit Card" && d.name != "Wire Transfer"){me.modes_of_payment.push(d.name);} });				
 				}
 				callback();
 			});
+		}
+
+		// var me = this;
+		// 	me.modes_of_payment = [];
+		// 	$.ajax("/api/resource/Mode of Payment").success(function(data) {
+				// if(!(frappe.get_cookie("user_id") == "Administrator") && inList(user_roles,"Cashier") && ($("body").find("input[data-fieldname='customer']").val() == "Convert Money Customer") ){
+				// 	$.each(data.data, function(i, d) { if (d.name == "Cash"){me.modes_of_payment.push(d.name);} });
+				// }else{
+				// 	$.each(data.data, function(i, d) { if (d.name != "Bank Draft" && d.name != "Credit Card" && d.name != "Wire Transfer"){me.modes_of_payment.push(d.name);} });				
+				// }
+		// 		callback();
+		// 	});
 	},
 	make_payment: function() {
 		var me = this;
