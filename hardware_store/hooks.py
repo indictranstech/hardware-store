@@ -84,9 +84,6 @@ doc_events = {
 	"Sales Invoice": {
 		"before_insert": "hardware_store.customization.sales_invoice.custom_for_pos"
 	},
-	"Sales Invoice": {
-		"validate": "hardware_store.customization.sales_invoice.grand_total_usd"
-	},
 	"Quotation": {
 		"validate": "hardware_store.customization.quotation.grand_total_usd"
 	},
@@ -108,10 +105,11 @@ doc_events = {
 scheduler_events = {
 	"all": [
 		"hardware_store.hardware_store.doctype.configuration.configuration.quotation_status"
-	],
-	"hourly": [
-		"hardware_store.hardware_store.doctype.configuration.configuration.quotation_status"
 	]
+	# ,
+	# "hourly": [
+	# 	"hardware_store.hardware_store.doctype.configuration.configuration.quotation_status"
+	# ]
 }
 
 

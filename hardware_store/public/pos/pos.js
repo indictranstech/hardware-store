@@ -678,7 +678,7 @@ erpnext.pos.PointOfSale = Class.extend({
 	},
 	add_new_item_to_grid: function(item_code, serial_no, uoms) {
 		var me = this;
-
+		console.log("add new item to grid")
 		var child = frappe.model.add_child(me.frm.doc, this.frm.doctype + " Item", "items");
 		child.item_code = item_code;
 		child.qty_in_uom = 1;
@@ -1174,7 +1174,7 @@ erpnext.pos.PointOfSale = Class.extend({
 				me.frm.set_value("outstanding_amount", 0);
 			//custom code by arpit
 			}else{
-		
+				// console.log("inside pos")
 				me.frm.set_value("is_pos", 0);
 				me.frm.set_value("paid_amount", 0);
 
