@@ -1,17 +1,24 @@
 frappe.ui.form.on("Sales Invoice Item","qty",function(doc, cdt, cdn){
 	cur_doc = cur_frm.doc
 	customer_group = cur_doc.customer_group
-	var item = locals[cdt][cdn];
-	if(item.qty && customer_group == "Regular Customers"){
-		get_rate_from_item(item, customer_group)
-	}
-	else if(item.qty && customer_group == "Credit Customers"){
-		get_rate_from_item(item, customer_group)
-	}
-	else {
-		get_rate_from_item(item, customer_group)
-	}
 
+	// console.log("inside qty")
+	// console.log(customer_group,"------------")
+	var item = locals[cdt][cdn];
+	// console.log(item.qty,"---qty-----------")
+	if(customer_group == "Regular Customers" && cur_doc.customer != "Convert Money Customer"){
+		get_rate_from_item(item, customer_group)
+		// console.log("inside if")
+	}
+	else if(customer_group == "Credit Customers" && cur_doc.customer != "Convert Money Customer"){
+		get_rate_from_item(item, customer_group)
+		// console.log("inside else condtion credit")
+	}
+	else if(customer_group == "Reseller Customers" && cur_doc.customer != "Convert Money Customer"){
+		get_rate_from_item(item, customer_group)
+		// console.log("else ")
+	}
+	
 })
 
 function get_rate_from_item (item, customer_group) {
@@ -25,6 +32,8 @@ function get_rate_from_item (item, customer_group) {
 		args : { args },
 		callback:function(r){
 			if(r.message) {
+				// console.log("-------get_rate_from_item-------")
+				// console.log(JSON.stringify(r.message))
 				item.rate =r.message[0]['rate']
 				cur_frm.refresh_fields();
 			}
@@ -65,6 +74,8 @@ frappe.ui.form.on("Sales Invoice Item", {
 			callback(r) {
 				item.uoms = r.message;
 				cur_frm.refresh_fields();
+				// console.log("----------item code-----------")
+				// console.log(r.message)
 			}
 		})
 	},
@@ -83,6 +94,7 @@ frappe.ui.form.on("Sales Invoice Item", {
 					if(!r.exc) {
 						custom_conversion_factor(cur_frm.doc, cdt, cdn);
 						cur_frm.script_manager.trigger("qty", cdt, cdn);	
+						// console.log("---------------inside uom------------")
 					}
 				}
 			});
@@ -93,11 +105,13 @@ frappe.ui.form.on("Sales Invoice Item", {
 		custom_conversion_factor(doc, cdt, cdn)
 		cur_frm.script_manager.trigger("qty", cdt, cdn);
 		cur_frm.refresh_fields()
+		// console.log("-----------inside qty_in_uom------------")
 	},
 
 	conversion_factor: function(doc, cdt, cdn) {
 		custom_conversion_factor(doc, cdt, cdn)
 		cur_frm.refresh_fields()
+		// console.log("-----inside conversion factor")
 	},
 });
 
@@ -106,6 +120,8 @@ custom_conversion_factor = function(doc, cdt, cdn) {
 		var item = frappe.get_doc(cdt, cdn);
 		frappe.model.round_floats_in(item, ["qty_in_uom", "conversion_factor"]);
 		item.qty = flt(item.qty_in_uom * item.conversion_factor, precision("qty_in_uom", item));
+		// console.log(item.qty);
+		// console.log("custom conversion factor------------------")
 	}
 }
 
