@@ -72,6 +72,8 @@ frappe.ui.form.on("Quotation Item", {
 				item_code: item.item_code
 			},
 			callback(r) {
+				item.item_counter = cur_frm.doc.counter + 1
+				cur_frm.set_value('counter', item.item_counter)
 				item.uoms = r.message;
 				cur_frm.refresh_fields();
 			}

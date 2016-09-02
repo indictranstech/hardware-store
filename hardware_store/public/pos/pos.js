@@ -631,13 +631,14 @@ erpnext.pos.PointOfSale = Class.extend({
 				// if form is local then allow this function
 				$(me.wrapper).find("div.pos-item").on("click", function() {
 					if(me.frm.doc.docstatus==0) {
-						me.add_to_cart($(this).attr("data-item-code"));
+						counter = me.frm.doc.counter + 1
+						me.add_to_cart($(this).attr("data-item-code"),false, counter);
 					}
 				});
 			}
 		});
 	},
-	add_to_cart: function(item_code, serial_no) {
+	add_to_cart: function(item_code, serial_no, counter) {
 		var me = this;
 		var caught = false;
 
@@ -652,33 +653,32 @@ erpnext.pos.PointOfSale = Class.extend({
 		var no_of_items = me.wrapper.find(".pos-bill-item").length;
 
 		// check whether the item is already added
-		if (no_of_items != 0) {
-			$.each(this.frm.doc["items"] || [], function(i, d) {
-				if (d.item_code == item_code) {
-					caught = true;
-					if (serial_no)
-						frappe.model.set_value(d.doctype, d.name, "serial_no", d.serial_no + '\n' + serial_no);
-					else
-						frappe.model.set_value(d.doctype, d.name, "qty_in_uom", d.qty_in_uom + 1);
+			// if (no_of_items != 0) {
+			// 	$.each(this.frm.doc["items"] || [], function(i, d) {
+			// 		if (d.item_code == item_code) {
+			// 			caught = true;
+			// 			if (serial_no)
+			// 				frappe.model.set_value(d.doctype, d.name, "serial_no", d.serial_no + '\n' + serial_no);
+			// 			else
+			// 				frappe.model.set_value(d.doctype, d.name, "qty_in_uom", d.qty_in_uom + 1);
 
-					// set the uom
-					$(me.wrapper).find("[data-item-code='"+ d.item_code +"']")
-					.find("select.uom-conversion")
-					.val(d.uom)
-				}
-			});
-		}
+			// 			// set the uom
+			// 			$(me.wrapper).find("[data-item-code='"+ d.item_code +"']")
+			// 			.find("select.uom-conversion")
+			// 			.val(d.uom)
+			// 		}
+			// 	});
+			// }
 
 		// if item not found then add new item
-		if (!caught)
-			this.add_new_item_to_grid(item_code, serial_no);
+		// if (!caught)
+			this.add_new_item_to_grid(item_code, serial_no, counter);
 
 		this.refresh();
 		this.refresh_search_box();
 	},
-	add_new_item_to_grid: function(item_code, serial_no, uoms) {
+	add_new_item_to_grid: function(item_code, serial_no, counter) {
 		var me = this;
-		console.log("add new item to grid")
 		var child = frappe.model.add_child(me.frm.doc, this.frm.doctype + " Item", "items");
 		child.item_code = item_code;
 		child.qty_in_uom = 1;
@@ -701,10 +701,10 @@ erpnext.pos.PointOfSale = Class.extend({
 			this.make_item_list();
 		}
 	},
-	update_qty: function(item_code, qty) {
+	update_qty: function(item_code, qty, counter) {
 		var me = this;
 		$.each(this.frm.doc["items"] || [], function(i, d) {
-			if (d.item_code == item_code) {
+			if (d.item_code == item_code && d.item_counter == counter) {
 				if (qty == 0) {
 					frappe.model.clear_doc(d.doctype, d.name);
 					me.refresh_grid();
@@ -777,6 +777,7 @@ erpnext.pos.PointOfSale = Class.extend({
 				uoms: JSON.parse(d.uoms? d.uoms: "[]"),
 				item_name: (d.item_name===d.item_code || !d.item_name) ? "" : ("<br>" + d.item_name),
 				qty: d.qty_in_uom,
+				counter: d.item_counter,
 				qty_item_uom: d.qty,
 				actual_qty: d.actual_qty,
 				projected_qty: d.projected_qty,
@@ -810,7 +811,6 @@ erpnext.pos.PointOfSale = Class.extend({
 		data = this.frm.doc['grand_total']
 		cur_frm.set_value("grand_total_usd", this.frm.doc['grand_total'])
 		frappe.model.set_value(this.frm.doc.doctype, this.frm.doc.docname, "grand_total_usd", data);
-		console.log(data)
 	},
 
 	set_totals: function() {
@@ -827,7 +827,8 @@ erpnext.pos.PointOfSale = Class.extend({
 		// append quantity to the respective item after change from input box
 		$(this.wrapper).find("input.pos-item-qty").on("change", function() {
 			var item_code = $(this).parents(".pos-bill-item").attr("data-item-code");
-			me.update_qty(item_code, $(this).val());
+			var counter= $(this).parents(".pos-bill-item").attr("data-item-counte")
+			me.update_qty(item_code, $(this).val(), counter);
 		});
 
 		// increase/decrease qty on plus/minus button
@@ -838,7 +839,8 @@ erpnext.pos.PointOfSale = Class.extend({
 
 		$(this.wrapper).find(".uom-conversion").on("change", function() {
 			var item_code = $(this).parents(".pos-bill-item").attr("data-item-code");
-			me.change_uom(item_code, $(this).val());
+			var counter = $(this).parents(".pos-bill-item").attr("data-item-counter")
+			me.change_uom(item_code, $(this).val(), counter);
 		});
 
 		this.focus();
@@ -854,6 +856,7 @@ erpnext.pos.PointOfSale = Class.extend({
 	increase_decrease_qty: function($item, operation) {
 		var me = this;
 		var item_code = $item.attr("data-item-code");
+		var counter = $item.attr("data-item-counter")
 		var item_qty = cint($item.find("input.pos-item-qty").val());
 	
 		// original code
@@ -863,11 +866,11 @@ erpnext.pos.PointOfSale = Class.extend({
 			// 	this.update_qty(item_code, item_qty - 1);
 		// end 
 		if (operation == "increase-qty"){
-			this.update_qty(item_code, item_qty + 1);
+			this.update_qty(item_code, item_qty + 1, parseInt(counter));
 		}
 		else {
 			if (operation == "decrease-qty" && item_qty != 0){
-				this.update_qty(item_code, item_qty - 1);
+				this.update_qty(item_code, item_qty - 1, parseInt(counter));
 			}else if(item_qty == 0) {
 				$.each(cur_frm.doc["items"] || [], function(i, d) {
 					if (d.item_name == "Money Convertor")	{
@@ -1174,7 +1177,6 @@ erpnext.pos.PointOfSale = Class.extend({
 				me.frm.set_value("outstanding_amount", 0);
 			//custom code by arpit
 			}else{
-				// console.log("inside pos")
 				me.frm.set_value("is_pos", 0);
 				me.frm.set_value("paid_amount", 0);
 
@@ -1191,11 +1193,13 @@ erpnext.pos.PointOfSale = Class.extend({
 
 	},
 
-	change_uom: function(item_code, uom) {
+	change_uom: function(item_code, uom, counter) {
+		console.log(uom,"00000000000000")
 		var me = this;
 		$.each(this.frm.doc["items"] || [], function(i, d) {
-			if (d.item_code == item_code) {
+			if (d.item_code == item_code && d.item_counter == counter) {
 				frappe.model.set_value(d.doctype, d.name, "uom", uom);
+				me.frm.script_manager.trigger("qty", d.doctype, d.name);
 			}
 		});
 	}
