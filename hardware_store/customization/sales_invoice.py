@@ -29,7 +29,7 @@ def get_items(price_list, sales_or_purchase, customer_group, item=None):
 	item_price_list =""
 	if customer_group == "Credit Customers":
 		item_price_list = "tabCredit Customers"
-	elif customer_group == "Resellers":
+	elif customer_group == "Reseller Customers":
 		item_price_list = "tabReseller Customers"
 	else:
 		item_price_list = "tabRegular Customers"

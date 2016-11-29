@@ -18,7 +18,7 @@ def rate(args):
 		quantity = quantity_range(Price_list, item_name, item_conversation)
 		required_qty =sort_quantity(item_qty, quantity)
 		return final_item_rate(Price_list, item_name, required_qty,item_conversation)
-	elif arg['customer_group'] == "Resellers":
+	elif arg['customer_group'] == "Reseller Customers":
 		Price_list = "tabReseller Customers"
 		quantity = quantity_range(Price_list, item_name, item_conversation)
 		required_qty = sort_quantity(item_qty, quantity)
