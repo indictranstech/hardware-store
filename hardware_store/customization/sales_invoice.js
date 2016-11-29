@@ -1,42 +1,58 @@
 frappe.ui.form.on("Sales Invoice Item","qty",function(doc, cdt, cdn){
-
 	cur_doc = cur_frm.doc
 	customer_group = cur_doc.customer_group
 	var item = locals[cdt][cdn];
-	
 	if(customer_group == "Regular Customers" && cur_doc.customer != "Convert Money Customer"){
-		console.log("inside if")
-		get_rate_from_item(item, customer_group)
+		get_rate_from_item(item, customer_group, cdt, cdn)
 	}
 	else if(customer_group == "Credit Customers" && cur_doc.customer != "Convert Money Customer"){
-		console.log("inside if-----")
-		get_rate_from_item(item, customer_group)
+		get_rate_from_item(item, customer_group, cdt, cdn)
 	}
 	else if(customer_group == "Reseller Customers" && cur_doc.customer != "Convert Money Customer"){
-		console.log("inside if000000000000")
-		get_rate_from_item(item, customer_group)
+		get_rate_from_item(item, customer_group, cdt, cdn)
 	}
 	
 })
 
-function get_rate_from_item (item, customer_group) {
-	console.log("check calling")
-	args ={}
-	args['item_name'] = item.item_code || item.item_name
-	args['qty'] = item.qty
-	args['customer_group'] = customer_group
-	args['item_uom'] = item.uom || " "
-	return frappe.call({
-		method : "hardware_store.customization.quotation.rate",
-		args : { args },
-		callback:function(r){
-			if(r.message) {
-				item.rate =r.message[0]['rate']
-				console.log(item.rate,"lllllllllll")
-				cur_frm.refresh_fields();
+function get_rate_from_item (item, customer_group, cdt, cdn) {
+	var item_uom =''
+	var args ={}
+	frappe.call({
+				method: "frappe.client.get_value",
+				args: {
+					doctype: "Item",
+					fieldname: "stock_uom",
+					filters: { name: item.item_code},
+				},
+				callback: function(r) {
+					if(r.message) {
+						item_uom = r.message['stock_uom']
+						args['item_name'] = item.item_code || item.item_name
+						args['qty'] = item.qty
+						args['customer_group'] = customer_group
+						data = item.uom || "PK96"
+						args['item_uom'] = item.uom || item_uom
+						set_rate_of_item(item, args, cdt, cdn)
+					}
+				}
+			});
+	}
+
+set_rate_of_item = function (item, args, cdt, cdn){
+	if(args){
+		frappe.call({
+			method : "hardware_store.customization.quotation.rate",
+			args : { args },
+			callback:function(r){
+				if(r.message) {
+					frappe.model.set_value(cdt, cdn, "rate", r.message[0]['rate']);
+					frappe.model.set_value(cdt, cdn, "uom", args['item_uom']);
+					cur_frm.refresh_fields();
+				}
 			}
-		}
-	})
+		})
+		
+	}
 }
 
  frappe.ui.form.on("Sales Invoice","onload",function(doc, cdt, cdn){
@@ -72,9 +88,6 @@ frappe.ui.form.on("Sales Invoice Item", {
 			callback(r) {
 				item.item_counter = cur_frm.doc.counter + 1
 				cur_frm.set_value('counter', item.item_counter)
-				console.log(item.item_counter)
-				console.log(cur_frm.doc.counter)
-				console.log('\n')
 				item.uoms = r.message;
 				cur_frm.refresh_fields();
 			}
@@ -93,11 +106,9 @@ frappe.ui.form.on("Sales Invoice Item", {
 				},
 				callback: function(r) {
 					if(!r.exc) {
-						console.log(JSON.stringify(r.message));
 						custom_conversion_factor(cur_frm.doc, cdt, cdn);
 						// get_rate_from_item(item, cur_doc.customer_group)
 						cur_frm.script_manager.trigger("qty", cdt, cdn);	
-						// console.log("---------------inside uom------------")
 					}
 				}
 			});
@@ -108,13 +119,11 @@ frappe.ui.form.on("Sales Invoice Item", {
 		custom_conversion_factor(doc, cdt, cdn)
 		cur_frm.script_manager.trigger("qty", cdt, cdn);
 		cur_frm.refresh_fields()
-		// console.log("-----------inside qty_in_uom------------")
 	},
 
 	conversion_factor: function(doc, cdt, cdn) {
 		custom_conversion_factor(doc, cdt, cdn)
 		cur_frm.refresh_fields()
-		// console.log("-----inside conversion factor")
 	},
 });
 
@@ -123,8 +132,6 @@ custom_conversion_factor = function(doc, cdt, cdn) {
 		var item = frappe.get_doc(cdt, cdn);
 		frappe.model.round_floats_in(item, ["qty_in_uom", "conversion_factor"]);
 		item.qty = flt(item.qty_in_uom * item.conversion_factor, precision("qty_in_uom", item));
-		// console.log(item.qty);
-		// console.log("custom conversion factor------------------")
 	}
 }
 

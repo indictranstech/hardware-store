@@ -2,34 +2,64 @@ frappe.ui.form.on("Quotation Item","qty",function(doc, cdt, cdn){
 	cur_doc = cur_frm.doc
 	customer_group = cur_doc.customer_group
 	var item = locals[cdt][cdn];
-	if(item.qty && customer_group == "Regular Customers"){
-		get_rate_from_item(item, customer_group)
+	if(customer_group == "Regular Customers"){
+		get_rate_from_item(item, customer_group, cdt, cdn)
 	}
-	else if(item.qty && customer_group == "Credit Customers"){
-		get_rate_from_item(item, customer_group)
+	else if(customer_group == "Credit Customers"){
+		get_rate_from_item(item, customer_group, cdt, cdn)
 	}
-	else {
-		get_rate_from_item(item, customer_group)
+	else if(customer_group == "Reseller Customers"){
+		get_rate_from_item(item, customer_group, cdt, cdn)
 	}
 })
 
-function get_rate_from_item (item, customer_group) {
-	args ={}
-	args['item_name'] = item.item_code || item.item_name
-	args['qty'] = item.qty
-	args['customer_group'] = customer_group
-	args['item_uom'] = item.uom || " "
-	return frappe.call({
-		method : "hardware_store.customization.quotation.rate",
-		args : { args },
-		callback:function(r) {
+function get_rate_from_item (item, customer_group, cdt, cdn) {
+	var item_uom =''
+	var args ={}
+	frappe.call({
+		method: "frappe.client.get_value",
+		args: {
+			doctype: "Item",
+			fieldname: "stock_uom",
+			filters: { name: item.item_code},
+		},
+		callback: function(r) {
 			if(r.message) {
-				item.rate =r.message[0]['rate']
-				cur_frm.refresh_fields();
+				item_uom = r.message['stock_uom']
+				args['item_name'] = item.item_code || item.item_name
+				args['qty'] = item.qty
+				args['customer_group'] = customer_group
+				// data = item.uom || "PK96"
+				args['item_uom'] = item.uom || item_uom
+				set_rate_of_item(item, args, cdt, cdn)
+				}
+				}
+			});
+	}
+
+set_rate_of_item = function (item, args, cdt, cdn){
+	if(args){
+		frappe.call({
+			method : "hardware_store.customization.quotation.rate",
+			args : { args },
+			callback:function(r){
+				if(r.message) {
+					frappe.model.set_value(cdt, cdn, "rate", r.message[0]['rate']);
+					frappe.model.set_value(cdt, cdn, "uom", args['item_uom']);
+					cur_frm.refresh_fields();
+				}
 			}
-		}
-	})
+		})
+		
+	}
 }
+
+
+
+
+
+
+
 
  frappe.ui.form.on("Quotation","additional_discount_percentage",function(doc, dt, dn){
  	quotation = frappe.get_doc(dt, dn)
@@ -55,7 +85,6 @@ function get_rate_from_item (item, customer_group) {
 	 		method : "hardware_store.customization.customization.default_customer",
 	 		callback:function(r) {
 	 			if(r.message){
-	 				console.log(JSON.stringify(r.message))
 	 				cur_frm.set_value("customer",r.message[0]['name'])
 	 			}
 	 		}
